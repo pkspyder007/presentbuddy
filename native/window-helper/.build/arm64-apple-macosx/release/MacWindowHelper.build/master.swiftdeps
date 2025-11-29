@@ -1,0 +1,7 @@
+version: "Apple Swift version 6.1 (swiftlang-6.1.0.110.21 clang-1700.0.13.3)"
+options: "d77b854e13e53702229ec44fd8379c8b2b299af6c84afae3f073e3fc61943dc5"
+build_start_time: [1764395834, 949841000]
+build_end_time: [1764395835, 572818000]
+inputs:
+  "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/WindowManager.swift": [1764339627, 317529016]
+  "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/main.swift": [1764339627, 317549600]

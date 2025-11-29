@@ -2,7 +2,6 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { tmpdir } from 'os';
 
 const execAsync = promisify(exec);
 

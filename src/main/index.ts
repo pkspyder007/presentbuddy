@@ -1,10 +1,11 @@
-import { app, ipcMain, BrowserWindow } from 'electron';
+import { app, ipcMain, BrowserWindow, globalShortcut } from 'electron';
 import { createWindow } from './window';
 import { getPlatform } from './utils';
 import { IPC_CHANNELS } from '../shared/constants';
-import type { SystemState, OriginalState, AppSettings, Platform } from '../shared/types';
+import type { SystemState, OriginalState, AppSettings } from '../shared/types';
 import * as platformHandlers from './platform';
 import * as storage from './storage';
+import { checkAndPromptAccessibilityPermissions } from './platform/accessibility';
 
 let mainWindow: BrowserWindow | null = null;
 let originalState: OriginalState = {};
@@ -30,8 +31,32 @@ app.whenReady().then(async () => {
     }
   });
 
+  // Check Accessibility permissions on macOS (required for window management)
+  if (platform === 'macos') {
+    // Check permissions but don't block app startup if missing
+    // The actual operations will show error messages if permissions are needed
+    checkAndPromptAccessibilityPermissions(true).catch((error) => {
+      console.warn('Error checking accessibility permissions:', error);
+    });
+  }
+
   // Initialize platform handlers
   platformHandlers.initialize(platform);
+
+  // Register global hotkey for toggling all features
+  // Use Cmd+Shift+P on macOS, Ctrl+Shift+P on Windows/Linux
+  const hotkey = process.platform === 'darwin' ? 'Command+Shift+P' : 'Control+Shift+P';
+  const registered = globalShortcut.register(hotkey, () => {
+    if (mainWindow) {
+      mainWindow.webContents.send(IPC_CHANNELS.TOGGLE_ALL);
+    }
+  });
+
+  if (!registered) {
+    console.error('Failed to register global hotkey:', hotkey);
+  } else {
+    console.log('Global hotkey registered:', hotkey);
+  }
 });
 
 app.on('window-all-closed', async () => {
@@ -44,7 +69,14 @@ app.on('window-all-closed', async () => {
 });
 
 app.on('before-quit', async () => {
+  // Unregister all global shortcuts
+  globalShortcut.unregisterAll();
   await restoreAllSettings();
+});
+
+app.on('will-quit', () => {
+  // Unregister all global shortcuts
+  globalShortcut.unregisterAll();
 });
 
 async function restoreAllSettings() {

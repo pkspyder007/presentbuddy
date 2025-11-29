@@ -1,0 +1,66 @@
+client:
+  name: basic
+  file-system: device-agnostic
+tools: {}
+targets:
+  "MacWindowHelper-arm64-apple-macosx16.0-release.exe": ["<MacWindowHelper-arm64-apple-macosx16.0-release.exe>"]
+  "MacWindowHelper-arm64-apple-macosx16.0-release.module": ["<MacWindowHelper-arm64-apple-macosx16.0-release.module>"]
+  "PackageStructure": ["<PackageStructure>"]
+  "main": ["<MacWindowHelper-arm64-apple-macosx16.0-release.exe>","<MacWindowHelper-arm64-apple-macosx16.0-release.module>"]
+  "test": ["<MacWindowHelper-arm64-apple-macosx16.0-release.exe>","<MacWindowHelper-arm64-apple-macosx16.0-release.module>"]
+default: "main"
+nodes:
+  "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/":
+    is-directory-structure: true
+    content-exclusion-patterns: [".git",".build"]
+commands:
+  "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/sources":
+    tool: write-auxiliary-file
+    inputs: ["<sources-file-list>","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/WindowManager.swift","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/main.swift"]
+    outputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/sources"]
+    description: "Write auxiliary file /Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/sources"
+
+  "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.product/Objects.LinkFileList":
+    tool: write-auxiliary-file
+    inputs: ["<link-file-list>","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/WindowManager.swift.o","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/main.swift.o"]
+    outputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.product/Objects.LinkFileList"]
+    description: "Write auxiliary file /Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.product/Objects.LinkFileList"
+
+  "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt":
+    tool: write-auxiliary-file
+    inputs: ["<swift-get-version>","/Library/Developer/CommandLineTools/usr/bin/swiftc"]
+    outputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt"]
+    always-out-of-date: "true"
+    description: "Write auxiliary file /Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt"
+
+  "<MacWindowHelper-arm64-apple-macosx16.0-release.exe>":
+    tool: phony
+    inputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper"]
+    outputs: ["<MacWindowHelper-arm64-apple-macosx16.0-release.exe>"]
+
+  "<MacWindowHelper-arm64-apple-macosx16.0-release.module>":
+    tool: phony
+    inputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/WindowManager.swift.o","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/main.swift.o","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/Modules/MacWindowHelper.swiftmodule"]
+    outputs: ["<MacWindowHelper-arm64-apple-macosx16.0-release.module>"]
+
+  "C.MacWindowHelper-arm64-apple-macosx16.0-release.exe":
+    tool: shell
+    inputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/WindowManager.swift.o","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/main.swift.o","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.product/Objects.LinkFileList"]
+    outputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper"]
+    description: "Linking ./.build/arm64-apple-macosx/release/MacWindowHelper"
+    args: ["/Library/Developer/CommandLineTools/usr/bin/swiftc","-L","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release","-o","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper","-module-name","MacWindowHelper","-Xlinker","-no_warn_duplicate_libraries","-emit-executable","-Xlinker","-dead_strip","-Xlinker","-alias","-Xlinker","_MacWindowHelper_main","-Xlinker","_main","-Xlinker","-rpath","-Xlinker","@loader_path","@/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.product/Objects.LinkFileList","-Xlinker","-rpath","-Xlinker","/Library/Developer/CommandLineTools/usr/lib/swift-5.5/macosx","-target","arm64-apple-macosx10.13","-F","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-sdk","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-g","-Xlinker","-rpath","-Xlinker","/Library/Developer/CommandLineTools/Library/Developer/Frameworks"]
+
+  "C.MacWindowHelper-arm64-apple-macosx16.0-release.module":
+    tool: shell
+    inputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/WindowManager.swift","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/main.swift","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/swift-version--1AB21518FC5DEDBE.txt","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/sources"]
+    outputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/WindowManager.swift.o","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/main.swift.o","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/Modules/MacWindowHelper.swiftmodule"]
+    description: "Compiling Swift Module 'MacWindowHelper' (2 sources)"
+    args: ["/Library/Developer/CommandLineTools/usr/bin/swiftc","-module-name","MacWindowHelper","-emit-dependencies","-emit-module","-emit-module-path","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/Modules/MacWindowHelper.swiftmodule","-output-file-map","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/output-file-map.json","-whole-module-optimization","-num-threads","8","-c","@/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/MacWindowHelper.build/sources","-I","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/Modules","-target","arm64-apple-macosx10.13","-O","-j8","-DSWIFT_PACKAGE","-module-cache-path","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/ModuleCache","-parseable-output","-Xfrontend","-entry-point-function-name","-Xfrontend","MacWindowHelper_main","-swift-version","5","-F","/Library/Developer/CommandLineTools/Library/Developer/Frameworks","-sdk","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-g","-Xcc","-isysroot","-Xcc","/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk","-Xcc","-fPIC","-Xcc","-g","-package-name","window_helper"]
+
+  "PackageStructure":
+    tool: package-structure-tool
+    inputs: ["/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Package.swift","/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Package.resolved"]
+    outputs: ["<PackageStructure>"]
+    description: "Planning build"
+    allow-missing-inputs: true
+

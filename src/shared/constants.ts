@@ -1,5 +1,5 @@
-export const APP_NAME = 'QuickPresent OSS';
-export const APP_VERSION = '1.0.0';
+export const APP_NAME = 'PresentBuddy';
+export const APP_VERSION = '0.0.1';
 
 export const IPC_CHANNELS = {
   // System operations
@@ -24,5 +24,8 @@ export const IPC_CHANNELS = {
   // Settings
   GET_SETTINGS: 'settings:get',
   SAVE_SETTINGS: 'settings:save',
+  
+  // Hotkey
+  TOGGLE_ALL: 'hotkey:toggle-all',
 } as const;
 

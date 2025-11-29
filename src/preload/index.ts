@@ -25,6 +25,15 @@ const electronAPI = {
   // Settings
   getSettings: (): Promise<AppSettings> => ipcRenderer.invoke(IPC_CHANNELS.GET_SETTINGS),
   saveSettings: (settings: AppSettings) => ipcRenderer.invoke(IPC_CHANNELS.SAVE_SETTINGS, settings),
+  
+  // Hotkey listener
+  onToggleAllHotkey: (callback: () => void) => {
+    ipcRenderer.on(IPC_CHANNELS.TOGGLE_ALL, callback);
+    // Return cleanup function
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.TOGGLE_ALL, callback);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

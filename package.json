@@ -1,5 +1,5 @@
 {
-  "name": "quickpresent-oss",
+  "name": "presentbuddy",
   "version": "1.0.0",
   "description": "Free, open-source alternative to QuickPresent - Prepare your screen for professional presentations",
   "main": "dist-electron/main/index.js",
@@ -10,8 +10,10 @@
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",
     "build:win": "tsc && vite build && electron-builder --win",
-    "build:mac": "tsc && vite build && electron-builder --mac",
+    "build:mac": "npm run build:window-helper && tsc && vite build && electron-builder --mac",
     "build:linux": "tsc && vite build && electron-builder --linux",
+    "build:window-helper": "cd native/window-helper && ./build-macos.sh",
+    "sign:window-helper": "cd native/window-helper && ./codesign-macos.sh",
     "preview": "vite preview",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "electron:pack": "electron-builder",

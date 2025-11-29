@@ -1,4 +1,4 @@
-# QuickPresent OSS
+# PresentBuddy
 
 A free, open-source alternative to QuickPresent - Prepare your screen for professional presentations with one click.
 
@@ -18,14 +18,14 @@ A free, open-source alternative to QuickPresent - Prepare your screen for profes
 ### Installation
 
 #### Windows
-1. Download the latest `.exe` installer from [Releases](https://github.com/yourusername/quickpresent-oss/releases)
+1. Download the latest `.exe` installer from [Releases](https://github.com/yourusername/presentbuddy/releases)
 2. Run the installer and follow the prompts
-3. Launch QuickPresent OSS from the Start menu
+3. Launch PresentBuddy from the Start menu
 
 #### macOS
-1. Download the latest `.dmg` file from [Releases](https://github.com/yourusername/quickpresent-oss/releases)
+1. Download the latest `.dmg` file from [Releases](https://github.com/yourusername/presentbuddy/releases)
 2. Open the DMG file
-3. Drag QuickPresent OSS to your Applications folder
+3. Drag PresentBuddy to your Applications folder
 4. Launch from Applications (you may need to allow it in System Preferences > Security)
 
 #### Linux
@@ -53,8 +53,8 @@ A free, open-source alternative to QuickPresent - Prepare your screen for profes
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/quickpresent-oss.git
-cd quickpresent-oss
+git clone https://github.com/yourusername/presentbuddy.git
+cd presentbuddy
 
 # Install dependencies
 npm install
@@ -78,7 +78,7 @@ npm run build:linux  # Linux
 ### Project Structure
 
 ```
-quickpresent-oss/
+presentbuddy/
 ├── src/
 │   ├── main/              # Electron main process
 │   │   ├── index.ts       # Main entry point
@@ -147,8 +147,8 @@ This application modifies system settings. While it includes auto-restore functi
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/quickpresent-oss/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/quickpresent-oss/discussions)
+- **Issues**: [GitHub Issues](https://github.com/yourusername/presentbuddy/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/yourusername/presentbuddy/discussions)
 
 ---
 

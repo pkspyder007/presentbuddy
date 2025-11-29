@@ -91,6 +91,7 @@ export function useSystemState() {
         // Disable all
         await Promise.all([
           systemState.desktopIconsHidden && window.electronAPI.showDesktopIcons(),
+          systemState.windowsMinimized && window.electronAPI.restoreAllWindows(),
           systemState.wallpaperChanged && window.electronAPI.restoreWallpaper(),
           systemState.audioMuted && window.electronAPI.unmuteAudio(),
           systemState.notificationsDisabled && window.electronAPI.enableNotifications(),

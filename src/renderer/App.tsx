@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import MasterToggle from './components/MasterToggle';
 import FeatureToggle from './components/FeatureToggle';
 import StatusIndicator from './components/StatusIndicator';
 import { useSystemState } from './hooks/useSystemState';
-import type { SystemState } from '../shared/types';
 
 function App() {
   const {
@@ -15,13 +14,22 @@ function App() {
     error,
   } = useSystemState();
 
+  // Listen for global hotkey to toggle all features
+  useEffect(() => {
+    const cleanup = window.electronAPI.onToggleAllHotkey(() => {
+      toggleAll();
+    });
+
+    return cleanup;
+  }, [toggleAll]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 p-6">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">
-            QuickPresent OSS
+            PresentBuddy
           </h1>
           <p className="text-blue-100 text-lg">
             Prepare your screen for professional presentations
@@ -46,6 +54,7 @@ function App() {
             enabled={Object.values(systemState).every(Boolean)}
             onToggle={toggleAll}
             disabled={isLoading}
+            platform={platform}
           />
         </div>
 

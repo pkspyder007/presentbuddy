@@ -2,9 +2,10 @@ interface MasterToggleProps {
   enabled: boolean;
   onToggle: () => void;
   disabled?: boolean;
+  platform?: string | null;
 }
 
-export default function MasterToggle({ enabled, onToggle, disabled }: MasterToggleProps) {
+export default function MasterToggle({ enabled, onToggle, disabled, platform }: MasterToggleProps) {
   return (
     <div className="flex flex-col items-center">
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">
@@ -34,6 +35,9 @@ export default function MasterToggle({ enabled, onToggle, disabled }: MasterTogg
         {enabled
           ? 'Click to disable all features'
           : 'Click to enable all features'}
+      </p>
+      <p className="mt-1 text-xs text-gray-400">
+        {platform === 'macos' ? '⌘⇧P' : 'Ctrl+Shift+P'} to toggle
       </p>
     </div>
   );

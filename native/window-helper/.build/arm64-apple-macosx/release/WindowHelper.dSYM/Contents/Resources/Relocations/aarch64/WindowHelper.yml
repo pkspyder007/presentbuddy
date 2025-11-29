@@ -1,0 +1,27 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper'
+relocations:
+  - { offset: 0xF3CA6, size: 0x8, addend: 0x0, symName: _WindowHelper_main, symObjAddr: 0x0, symBinAddr: 0x100001E34, symSize: 0x364 }
+  - { offset: 0xF3CCA, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper4argsSaySSGvp', symObjAddr: 0x28F0, symBinAddr: 0x10000C4E0, symSize: 0x0 }
+  - { offset: 0xF3DAC, size: 0x8, addend: 0x0, symName: _WindowHelper_main, symObjAddr: 0x0, symBinAddr: 0x100001E34, symSize: 0x364 }
+  - { offset: 0xF41A8, size: 0x8, addend: 0x0, symName: ___swift_instantiateConcreteTypeFromMangledName, symObjAddr: 0x364, symBinAddr: 0x100002198, symSize: 0x44 }
+  - { offset: 0xF41BC, size: 0x8, addend: 0x0, symName: '_$sSo14AXUIElementRefaMa', symObjAddr: 0x3C0, symBinAddr: 0x1000021DC, symSize: 0x50 }
+  - { offset: 0xF441C, size: 0x8, addend: 0x0, symName: '_$ss29getContiguousArrayStorageType3fors01_bcD0CyxGmxm_tlFSo20NSRunningApplicationC_Ttg5', symObjAddr: 0x44, symBinAddr: 0x100002270, symSize: 0x5C }
+  - { offset: 0xF444A, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV19_getElementSlowPathyyXlSiFSo14AXUIElementRefa_Tg5', symObjAddr: 0xA0, symBinAddr: 0x1000022CC, symSize: 0x1B8 }
+  - { offset: 0xF44D6, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV19_getElementSlowPathyyXlSiFSo20NSRunningApplicationC_Tg5', symObjAddr: 0x258, symBinAddr: 0x100002484, symSize: 0x1C4 }
+  - { offset: 0xF4557, size: 0x8, addend: 0x0, symName: '_$ss15ContiguousArrayV16_createNewBuffer14bufferIsUnique15minimumCapacity13growForAppendySb_SiSbtFSo20NSRunningApplicationC_Tg5', symObjAddr: 0x41C, symBinAddr: 0x100002648, symSize: 0x1C }
+  - { offset: 0xF45C7, size: 0x8, addend: 0x0, symName: '_$ss22_ContiguousArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtFSo20NSRunningApplicationC_Tg5', symObjAddr: 0x438, symBinAddr: 0x100002664, symSize: 0x124 }
+  - { offset: 0xF484A, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper0A7ManagerVMa', symObjAddr: 0x1A18, symBinAddr: 0x100003C44, symSize: 0x10 }
+  - { offset: 0xF485E, size: 0x8, addend: 0x0, symName: '_$sSo20NSRunningApplicationCMa', symObjAddr: 0x1A28, symBinAddr: 0x100003C54, symSize: 0x44 }
+  - { offset: 0xF4881, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper0A7ManagerV18minimizeAllWindowsyyFZ', symObjAddr: 0x0, symBinAddr: 0x10000222C, symSize: 0x4 }
+  - { offset: 0xF49AF, size: 0x8, addend: 0x0, symName: '_$ss14_ArrayProtocolPsE6filterySay7ElementQzGSbAEKXEKFSaySo20NSRunningApplicationCG_Tg5085$s12WindowHelper0A7ManagerV27minimizeAllWindowsExcluding14excludeAppNameySS_tFZSbSo20eF6CXEfU_SSTf1cn_nTf4gg_n', symObjAddr: 0x9D0, symBinAddr: 0x100002BFC, symSize: 0x258 }
+  - { offset: 0xF4B98, size: 0x8, addend: 0x0, symName: '_$ss14_ArrayProtocolPsE6filterySay7ElementQzGSbAEKXEKFSaySo20NSRunningApplicationCG_Tg5059$s12WindowHelper0A7ManagerV11minimizeApp5namedySS_tFZSbSo20eF6CXEfU_SSTf1cn_nTf4gg_n', symObjAddr: 0x13F0, symBinAddr: 0x10000361C, symSize: 0x21C }
+  - { offset: 0xF4DF8, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper0A7ManagerV27minimizeAllWindowsExcluding14excludeAppNameySS_tFZ', symObjAddr: 0x4, symBinAddr: 0x100002230, symSize: 0x1C }
+  - { offset: 0xF4E39, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper0A7ManagerV17restoreAllWindowsyyFZ', symObjAddr: 0x20, symBinAddr: 0x10000224C, symSize: 0x4 }
+  - { offset: 0xF4E6E, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper0A7ManagerV11hideAllAppsyyFZ', symObjAddr: 0x24, symBinAddr: 0x100002250, symSize: 0x4 }
+  - { offset: 0xF4EA3, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper0A7ManagerV11minimizeApp5namedySS_tFZ', symObjAddr: 0x28, symBinAddr: 0x100002254, symSize: 0x1C }
+  - { offset: 0xF505A, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper0A7ManagerV18minimizeAllWindowsyyFZTf4d_n', symObjAddr: 0x55C, symBinAddr: 0x100002788, symSize: 0x474 }
+  - { offset: 0xF5555, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper0A7ManagerV17restoreAllWindowsyyFZTf4d_n', symObjAddr: 0xC74, symBinAddr: 0x100002EA0, symSize: 0x548 }
+  - { offset: 0xF5A79, size: 0x8, addend: 0x0, symName: '_$s12WindowHelper0A7ManagerV11hideAllAppsyyFZTf4d_n', symObjAddr: 0x11BC, symBinAddr: 0x1000033E8, symSize: 0x234 }
+...

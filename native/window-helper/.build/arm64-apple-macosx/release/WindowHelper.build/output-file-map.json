@@ -1,0 +1,17 @@
+{
+  "": {
+    "dependencies": "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper.build/WindowHelper.d",
+    "object": "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper.build/WindowHelper.o",
+    "swift-dependencies": "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper.build/master.swiftdeps"
+  },
+  "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/WindowManager.swift": {
+    "object": "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper.build/WindowManager.swift.o",
+    "swiftmodule": "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper.build/WindowManager~partial.swiftmodule",
+    "swift-dependencies": "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper.build/WindowManager.swiftdeps"
+  },
+  "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/Sources/WindowHelper/main.swift": {
+    "object": "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper.build/main.swift.o",
+    "swiftmodule": "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper.build/main~partial.swiftmodule",
+    "swift-dependencies": "/Users/praveen/github/@pkspyder007/quickpresent-oss/native/window-helper/.build/arm64-apple-macosx/release/WindowHelper.build/main.swiftdeps"
+  }
+}

@@ -1,5 +1,5 @@
-appId: com.quickpresent.oss
-productName: QuickPresent OSS
+appId: com.presentbuddy
+productName: PresentBuddy
 copyright: Copyright © 2024
 
 directories:
@@ -26,6 +26,11 @@ mac:
   category: public.app-category.utilities
   hardenedRuntime: true
   gatekeeperAssess: false
+  extraResources:
+    - from: native/window-helper/bin/MacWindowHelper
+      to: MacWindowHelper
+      filter:
+        - "**/*"
 
 linux:
   target:

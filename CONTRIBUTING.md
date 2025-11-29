@@ -1,6 +1,6 @@
-# Contributing to QuickPresent OSS
+# Contributing to PresentBuddy
 
-Thank you for your interest in contributing to QuickPresent OSS! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to PresentBuddy! This document provides guidelines and instructions for contributing.
 
 ## Code of Conduct
 
@@ -13,7 +13,7 @@ Thank you for your interest in contributing to QuickPresent OSS! This document p
 
 ### Reporting Bugs
 
-1. Check if the bug has already been reported in [Issues](https://github.com/yourusername/quickpresent-oss/issues)
+1. Check if the bug has already been reported in [Issues](https://github.com/yourusername/presentbuddy/issues)
 2. If not, create a new issue with:
    - Clear title and description
    - Steps to reproduce
@@ -109,5 +109,5 @@ Feel free to:
 - Start a discussion in GitHub Discussions
 - Reach out to maintainers
 
-Thank you for contributing to QuickPresent OSS! 🎉
+Thank you for contributing to PresentBuddy! 🎉
 

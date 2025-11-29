@@ -1,11 +1,73 @@
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import { promisify } from 'util';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { app, dialog } from 'electron';
 
 const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 const DEFAULT_WALLPAPER = join(__dirname, '../../assets/wallpapers/default.jpg');
+
+// Get the macOS window helper path - works in both dev and production
+function getWindowHelperPath(): string | null {
+  const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+  
+  if (isDev) {
+    // Development: Try multiple possible locations
+    // 1. From project root (process.cwd())
+    const devPath1 = join(process.cwd(), 'native/window-helper/bin/MacWindowHelper');
+    if (existsSync(devPath1)) {
+      return devPath1;
+    }
+    
+    // 2. From __dirname (relative to compiled main process)
+    const devPath2 = join(__dirname, '../../native/window-helper/bin/MacWindowHelper');
+    if (existsSync(devPath2)) {
+      return devPath2;
+    }
+    
+    // 3. From app path if available
+    if (app && app.isReady()) {
+      const devPath3 = join(app.getAppPath(), 'native/window-helper/bin/MacWindowHelper');
+      if (existsSync(devPath3)) {
+        return devPath3;
+      }
+    }
+  } else {
+    // Production: Binary is in resources/MacWindowHelper (from extraResources)
+    if (process.resourcesPath) {
+      const prodPath = join(process.resourcesPath, 'MacWindowHelper');
+      if (existsSync(prodPath)) {
+        return prodPath;
+      }
+    }
+  }
+  
+  return null;
+}
+
+// Check if window helper binary exists and show error if not
+async function ensureWindowHelperExists(): Promise<string> {
+  const helperPath = getWindowHelperPath();
+  
+  if (!helperPath || !existsSync(helperPath)) {
+    const errorMessage = 'Window Helper is missing or not signed properly.';
+    console.error(errorMessage);
+    
+    // Show error dialog if app is ready
+    if (app && app.isReady()) {
+      await dialog.showErrorBox(
+        'Window Helper Missing',
+        errorMessage + '\n\nPlease rebuild the application or contact support.'
+      );
+    }
+    
+    throw new Error(errorMessage);
+  }
+  
+  return helperPath;
+}
 
 export async function hideDesktopIcons(): Promise<void> {
   try {
@@ -28,26 +90,61 @@ export async function showDesktopIcons(): Promise<void> {
 
 export async function minimizeAllWindows(): Promise<void> {
   try {
-    // macOS: Minimize all windows using AppleScript
-    await execAsync(
-      `osascript -e 'tell application "System Events" to keystroke "m" using {command down, option down}'`
-    );
+    // macOS: Minimize all windows using the Swift helper
+    const helperPath = await ensureWindowHelperExists();
+    
+    // Use execFile for better security (no shell injection)
+    const { stdout, stderr } = await execFileAsync(helperPath, ['minimize-all']);
+    
+    if (stderr && stderr.trim()) {
+      console.warn('MacWindowHelper stderr:', stderr);
+    }
+    
+    if (stdout && stdout.trim()) {
+      console.log('MacWindowHelper output:', stdout);
+    }
   } catch (error: any) {
+    // Check if it's a permission error
+    if (error.message && error.message.includes('permission') || error.code === 'EACCES') {
+      throw new Error('Failed to minimize windows: Accessibility permissions required. Please enable in System Settings → Privacy & Security → Accessibility.');
+    }
+    
+    // Check for non-zero exit code
+    if (error.code && error.code !== 0) {
+      console.warn(`MacWindowHelper exited with code ${error.code}:`, error.message);
+    }
+    
     throw new Error(`Failed to minimize windows: ${error.message}`);
   }
 }
 
 export async function restoreAllWindows(): Promise<void> {
   try {
-    // macOS: Restore windows using Mission Control or Dock
-    await execAsync(
-      `osascript -e 'tell application "System Events" to keystroke "m" using {command down, option down, shift down}'`
-    );
+    // macOS: Restore all minimized windows using the Swift helper
+    const helperPath = await ensureWindowHelperExists();
+    
+    // Use execFile for better security (no shell injection)
+    const { stdout, stderr } = await execFileAsync(helperPath, ['restore-all']);
+    
+    if (stderr && stderr.trim()) {
+      console.warn('MacWindowHelper stderr:', stderr);
+    }
+    
+    if (stdout && stdout.trim()) {
+      console.log('MacWindowHelper output:', stdout);
+    }
   } catch (error: any) {
-    // Alternative: Use Dock to restore
-    await execAsync(
-      `osascript -e 'tell application "Dock" to activate'`
-    );
+    // Check if it's a permission error
+    if (error.message && error.message.includes('permission') || error.code === 'EACCES') {
+      throw new Error('Failed to restore windows: Accessibility permissions required. Please enable in System Settings → Privacy & Security → Accessibility.');
+    }
+    
+    // Check for non-zero exit code
+    if (error.code && error.code !== 0) {
+      console.warn(`MacWindowHelper exited with code ${error.code}:`, error.message);
+    }
+    
+    throw new Error(`Failed to restore windows: ${error.message}`);
   }
 }
 
