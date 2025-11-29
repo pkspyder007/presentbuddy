@@ -31,5 +31,6 @@ export interface AppSettings {
   autoRestore: boolean;
   defaultWallpaper?: string;
   startMinimized: boolean;
+  darkMode?: boolean;
 }
 

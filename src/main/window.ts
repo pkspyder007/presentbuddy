@@ -4,14 +4,16 @@ import { isDev } from './utils';
 
 export function createWindow(): BrowserWindow {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+  console.log("🚀 ~ createWindow ~ width, height:", width, height)
   
   const mainWindow = new BrowserWindow({
-    width: Math.min(500, width * 0.8),
-    height: Math.min(700, height * 0.8),
+    width: Math.min(600, width * 0.8),
+    // height: Math.max(780, height * 0.8),
+    height: 710,
     minWidth: 400,
     minHeight: 600,
     frame: true,
-    titleBarStyle: 'default',
+    titleBarStyle: 'hidden',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       nodeIntegration: false,

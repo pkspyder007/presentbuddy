@@ -103,13 +103,22 @@ app.whenReady().then(async () => {
     },
     changeWallpaper: async (path?: string) => {
       try {
-        const wallpaperPath = await platformHandlers.changeWallpaper(platform, path);
+        // If no path provided, check for custom wallpaper in settings
+        let wallpaperPath = path;
+        if (!wallpaperPath) {
+          const settings = await storage.getSettings();
+          if (settings.defaultWallpaper) {
+            wallpaperPath = settings.defaultWallpaper;
+          }
+        }
+        
+        const originalWallpaperPath = await platformHandlers.changeWallpaper(platform, wallpaperPath);
         if (!originalState.wallpaperPath) {
-          originalState.wallpaperPath = wallpaperPath;
+          originalState.wallpaperPath = originalWallpaperPath;
         }
         systemState.wallpaperChanged = true;
         updateTray(mainWindow, systemState);
-        return { success: true, wallpaperPath };
+        return { success: true, wallpaperPath: originalWallpaperPath };
       } catch (error: any) {
         return { success: false, error: error.message };
       }
