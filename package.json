@@ -14,6 +14,7 @@
     "build:linux": "tsc && vite build && electron-builder --linux",
     "build:window-helper": "cd native/window-helper && ./build-macos.sh",
     "sign:window-helper": "cd native/window-helper && ./codesign-macos.sh",
+    "generate:icons": "cd assets/icons && ./generate-icons.sh",
     "preview": "vite preview",
     "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
     "electron:pack": "electron-builder",

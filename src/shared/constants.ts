@@ -25,6 +25,9 @@ export const IPC_CHANNELS = {
   GET_SETTINGS: 'settings:get',
   SAVE_SETTINGS: 'settings:save',
   
+  // Wallpaper
+  SELECT_WALLPAPER_FILE: 'wallpaper:select-file',
+  
   // Hotkey
   TOGGLE_ALL: 'hotkey:toggle-all',
 } as const;

@@ -26,6 +26,9 @@ const electronAPI = {
   getSettings: (): Promise<AppSettings> => ipcRenderer.invoke(IPC_CHANNELS.GET_SETTINGS),
   saveSettings: (settings: AppSettings) => ipcRenderer.invoke(IPC_CHANNELS.SAVE_SETTINGS, settings),
   
+  // Wallpaper
+  selectWallpaperFile: () => ipcRenderer.invoke(IPC_CHANNELS.SELECT_WALLPAPER_FILE),
+  
   // Hotkey listener
   onToggleAllHotkey: (callback: () => void) => {
     ipcRenderer.on(IPC_CHANNELS.TOGGLE_ALL, callback);

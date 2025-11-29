@@ -1,0 +1,42 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="screenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGradient)"/>
+  
+  <!-- Monitor/Screen frame -->
+  <rect x="120" y="100" width="272" height="200" rx="8" fill="#334155" stroke="#475569" stroke-width="4"/>
+  
+  <!-- Screen -->
+  <rect x="132" y="112" width="248" height="176" rx="4" fill="url(#screenGradient)"/>
+  
+  <!-- Presentation slide lines (representing clean presentation) -->
+  <line x1="156" y1="140" x2="356" y2="140" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/>
+  <line x1="156" y1="170" x2="320" y2="170" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/>
+  <line x1="156" y1="200" x2="300" y2="200" stroke="#60a5fa" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Monitor stand/base -->
+  <rect x="220" y="300" width="72" height="12" rx="4" fill="#475569"/>
+  <rect x="240" y="312" width="32" height="40" rx="4" fill="#334155"/>
+  
+  <!-- Sparkle/star icon (representing polish/preparation) -->
+  <g transform="translate(380, 80)">
+    <path d="M16 0 L20 12 L32 12 L22 20 L26 32 L16 24 L6 32 L10 20 L0 12 L12 12 Z" 
+          fill="#fbbf24" opacity="0.9"/>
+  </g>
+  
+  <!-- Small accent dots -->
+  <circle cx="380" cy="240" r="4" fill="#60a5fa" opacity="0.7"/>
+  <circle cx="400" cy="260" r="3" fill="#60a5fa" opacity="0.5"/>
+</svg>
+

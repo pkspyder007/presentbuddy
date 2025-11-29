@@ -1,4 +1,4 @@
-import { app, ipcMain, BrowserWindow, globalShortcut } from 'electron';
+import { app, ipcMain, BrowserWindow, globalShortcut, dialog } from 'electron';
 import { createWindow } from './window';
 import { getPlatform } from './utils';
 import { IPC_CHANNELS } from '../shared/constants';
@@ -6,6 +6,7 @@ import type { SystemState, OriginalState, AppSettings } from '../shared/types';
 import * as platformHandlers from './platform';
 import * as storage from './storage';
 import { checkAndPromptAccessibilityPermissions } from './platform/accessibility';
+import { createTray, updateTray, destroyTray } from './tray';
 
 let mainWindow: BrowserWindow | null = null;
 let originalState: OriginalState = {};
@@ -57,6 +58,127 @@ app.whenReady().then(async () => {
   } else {
     console.log('Global hotkey registered:', hotkey);
   }
+
+  // Create system tray with handler functions
+  const trayHandlers = {
+    hideDesktopIcons: async () => {
+      try {
+        await platformHandlers.hideDesktopIcons(platform);
+        systemState.desktopIconsHidden = true;
+        updateTray(mainWindow, systemState);
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    showDesktopIcons: async () => {
+      try {
+        await platformHandlers.showDesktopIcons(platform);
+        systemState.desktopIconsHidden = false;
+        updateTray(mainWindow, systemState);
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    minimizeAllWindows: async () => {
+      try {
+        await platformHandlers.minimizeAllWindows(platform);
+        systemState.windowsMinimized = true;
+        updateTray(mainWindow, systemState);
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    restoreAllWindows: async () => {
+      try {
+        await platformHandlers.restoreAllWindows(platform);
+        systemState.windowsMinimized = false;
+        updateTray(mainWindow, systemState);
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    changeWallpaper: async (path?: string) => {
+      try {
+        const wallpaperPath = await platformHandlers.changeWallpaper(platform, path);
+        if (!originalState.wallpaperPath) {
+          originalState.wallpaperPath = wallpaperPath;
+        }
+        systemState.wallpaperChanged = true;
+        updateTray(mainWindow, systemState);
+        return { success: true, wallpaperPath };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    restoreWallpaper: async () => {
+      try {
+        if (originalState.wallpaperPath) {
+          await platformHandlers.restoreWallpaper(platform, originalState.wallpaperPath);
+          systemState.wallpaperChanged = false;
+          originalState.wallpaperPath = undefined;
+        }
+        updateTray(mainWindow, systemState);
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    muteAudio: async () => {
+      try {
+        const volumeLevel = await platformHandlers.muteAudio(platform);
+        if (originalState.volumeLevel === undefined) {
+          originalState.volumeLevel = volumeLevel;
+        }
+        systemState.audioMuted = true;
+        updateTray(mainWindow, systemState);
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    unmuteAudio: async () => {
+      try {
+        if (originalState.volumeLevel !== undefined) {
+          await platformHandlers.unmuteAudio(platform, originalState.volumeLevel);
+          systemState.audioMuted = false;
+          originalState.volumeLevel = undefined;
+        }
+        updateTray(mainWindow, systemState);
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    disableNotifications: async () => {
+      try {
+        await platformHandlers.disableNotifications(platform);
+        systemState.notificationsDisabled = true;
+        updateTray(mainWindow, systemState);
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    enableNotifications: async () => {
+      try {
+        await platformHandlers.enableNotifications(platform);
+        systemState.notificationsDisabled = false;
+        updateTray(mainWindow, systemState);
+        return { success: true };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    },
+    getSystemState: () => systemState,
+  };
+  
+  // Create system tray
+  createTray(mainWindow, systemState, trayHandlers);
+  console.log('System tray created');
 });
 
 app.on('window-all-closed', async () => {
@@ -77,6 +199,8 @@ app.on('before-quit', async () => {
 app.on('will-quit', () => {
   // Unregister all global shortcuts
   globalShortcut.unregisterAll();
+  // Destroy system tray
+  destroyTray();
 });
 
 async function restoreAllSettings() {
@@ -101,12 +225,17 @@ async function restoreAllSettings() {
 // IPC Handlers
 ipcMain.handle(IPC_CHANNELS.GET_PLATFORM, () => platform);
 
-ipcMain.handle(IPC_CHANNELS.GET_SYSTEM_STATE, () => systemState);
+ipcMain.handle(IPC_CHANNELS.GET_SYSTEM_STATE, () => {
+  // Update tray when state is requested
+  updateTray(mainWindow, systemState);
+  return systemState;
+});
 
 ipcMain.handle(IPC_CHANNELS.HIDE_DESKTOP_ICONS, async () => {
   try {
     await platformHandlers.hideDesktopIcons(platform);
     systemState.desktopIconsHidden = true;
+    updateTray(mainWindow, systemState);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -117,6 +246,7 @@ ipcMain.handle(IPC_CHANNELS.SHOW_DESKTOP_ICONS, async () => {
   try {
     await platformHandlers.showDesktopIcons(platform);
     systemState.desktopIconsHidden = false;
+    updateTray(mainWindow, systemState);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -127,6 +257,7 @@ ipcMain.handle(IPC_CHANNELS.MINIMIZE_ALL_WINDOWS, async () => {
   try {
     await platformHandlers.minimizeAllWindows(platform);
     systemState.windowsMinimized = true;
+    updateTray(mainWindow, systemState);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -137,6 +268,7 @@ ipcMain.handle(IPC_CHANNELS.RESTORE_ALL_WINDOWS, async () => {
   try {
     await platformHandlers.restoreAllWindows(platform);
     systemState.windowsMinimized = false;
+    updateTray(mainWindow, systemState);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -145,12 +277,22 @@ ipcMain.handle(IPC_CHANNELS.RESTORE_ALL_WINDOWS, async () => {
 
 ipcMain.handle(IPC_CHANNELS.CHANGE_WALLPAPER, async (_, path?: string) => {
   try {
-    const wallpaperPath = await platformHandlers.changeWallpaper(platform, path);
+    // If no path provided, check for custom wallpaper in settings
+    let wallpaperPath = path;
+    if (!wallpaperPath) {
+      const settings = await storage.getSettings();
+      if (settings.defaultWallpaper) {
+        wallpaperPath = settings.defaultWallpaper;
+      }
+    }
+    
+    const originalWallpaperPath = await platformHandlers.changeWallpaper(platform, wallpaperPath);
     if (!originalState.wallpaperPath) {
-      originalState.wallpaperPath = wallpaperPath;
+      originalState.wallpaperPath = originalWallpaperPath;
     }
     systemState.wallpaperChanged = true;
-    return { success: true, wallpaperPath };
+    updateTray(mainWindow, systemState);
+    return { success: true, wallpaperPath: originalWallpaperPath };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -163,6 +305,7 @@ ipcMain.handle(IPC_CHANNELS.RESTORE_WALLPAPER, async () => {
       systemState.wallpaperChanged = false;
       originalState.wallpaperPath = undefined;
     }
+    updateTray(mainWindow, systemState);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -176,6 +319,7 @@ ipcMain.handle(IPC_CHANNELS.MUTE_AUDIO, async () => {
       originalState.volumeLevel = volumeLevel;
     }
     systemState.audioMuted = true;
+    updateTray(mainWindow, systemState);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -189,6 +333,7 @@ ipcMain.handle(IPC_CHANNELS.UNMUTE_AUDIO, async () => {
       systemState.audioMuted = false;
       originalState.volumeLevel = undefined;
     }
+    updateTray(mainWindow, systemState);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -199,6 +344,7 @@ ipcMain.handle(IPC_CHANNELS.DISABLE_NOTIFICATIONS, async () => {
   try {
     await platformHandlers.disableNotifications(platform);
     systemState.notificationsDisabled = true;
+    updateTray(mainWindow, systemState);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -209,6 +355,7 @@ ipcMain.handle(IPC_CHANNELS.ENABLE_NOTIFICATIONS, async () => {
   try {
     await platformHandlers.enableNotifications(platform);
     systemState.notificationsDisabled = false;
+    updateTray(mainWindow, systemState);
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -237,5 +384,38 @@ ipcMain.handle(IPC_CHANNELS.GET_SETTINGS, async () => {
 ipcMain.handle(IPC_CHANNELS.SAVE_SETTINGS, async (_, settings: AppSettings) => {
   await storage.saveSettings(settings);
   return { success: true };
+});
+
+// Wallpaper file selection
+ipcMain.handle(IPC_CHANNELS.SELECT_WALLPAPER_FILE, async () => {
+  try {
+    if (!mainWindow) {
+      return { success: false, error: 'Main window not available' };
+    }
+
+    const result = await dialog.showOpenDialog(mainWindow, {
+      title: 'Select Wallpaper',
+      filters: [
+        { name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'bmp', 'gif', 'webp'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+      properties: ['openFile'],
+    });
+
+    if (result.canceled || result.filePaths.length === 0) {
+      return { success: false, canceled: true };
+    }
+
+    const selectedPath = result.filePaths[0];
+    
+    // Save to settings
+    const settings = await storage.getSettings();
+    settings.defaultWallpaper = selectedPath;
+    await storage.saveSettings(settings);
+
+    return { success: true, path: selectedPath };
+  } catch (error: any) {
+    return { success: false, error: error.message };
+  }
 });
 
