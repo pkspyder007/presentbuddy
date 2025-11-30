@@ -308,7 +308,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col md:flex-row items-center gap-5 text-sm font-normal text-gray-600">
                 <a 
-                  href="https://github.com/pkspyder007/quickpresent-oss" 
+                  href="https://github.com/pkspyder007/presentbuddy" 
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-gray-950 transition-colors"
@@ -321,7 +321,7 @@ export default function Home() {
               <p>
                 Made with ❤️ by{' '}
                 <a 
-                  href="https://github.com/pkspyder007/quickpresent-oss" 
+                  href="https://github.com/pkspyder007" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-gray-700 hover:text-gray-950 transition-colors underline"

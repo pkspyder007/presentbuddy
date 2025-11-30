@@ -46,15 +46,33 @@ jobs:
       - name: Build application for macOS
         run: pnpm run build:mac
 
-      - name: Upload macOS artifacts
+      - name: Get version
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Upload macOS DMG artifact
         uses: actions/upload-artifact@v4
         with:
-          name: macos-build-${{ github.sha }}
+          name: PresentBuddy-macOS-v${{ steps.get_version.outputs.version }}-${{ github.sha }}
           path: |
             dist/*.dmg
             dist/*.dmg.blockmap
-          retention-days: 30
-          if-no-files-found: warn
+          retention-days: 400
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Display artifact download info
+        run: |
+          echo "## 📦 DMG Artifact Uploaded" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Artifact Name:** PresentBuddy-macOS-v${{ steps.get_version.outputs.version }}-${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Download:** Go to the Actions tab → Select this workflow run → Download the artifact from the 'Artifacts' section" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Retention:** 400 days (maximum allowed)" >> $GITHUB_STEP_SUMMARY
 
   release:
     name: Create Release
@@ -74,7 +92,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
-          pattern: '*-build-*'
+          pattern: 'PresentBuddy-macOS-*'
           merge-multiple: true
 
       - name: Get version

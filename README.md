@@ -1,6 +1,6 @@
 # PresentBuddy
 
-A free, open-source alternative to QuickPresent - Prepare your screen for professional presentations with one click.
+Prepare your screen for professional presentations with one click.
 
 ## ✨ Features
 
@@ -137,7 +137,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Inspired by [QuickPresent](https://www.quickpresent.app)
 - Built with [Electron](https://www.electronjs.org/)
 - UI built with [React](https://react.dev/) and [Tailwind CSS](https://tailwindcss.com/)
 

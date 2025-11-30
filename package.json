@@ -1,7 +1,7 @@
 {
   "name": "presentbuddy",
   "version": "1.0.0",
-  "description": "Free, open-source alternative to QuickPresent - Prepare your screen for professional presentations",
+  "description": "Prepare your screen for professional presentations with one click",
   "main": "dist-electron/main/index.js",
   "author": "Your Name",
   "license": "MIT",

@@ -60,3 +60,4 @@ native-app/build/
 .build/
 .swiftpm/
 
+.env*
