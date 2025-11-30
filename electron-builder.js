@@ -119,6 +119,9 @@ module.exports = {
   productName: 'PresentBuddy',
   copyright: 'Copyright © 2025',
 
+  // Disable auto-publishing (publishing is handled by GitHub Actions)
+  publish: null,
+
   directories: {
     buildResources: 'build',
     output: 'dist',
