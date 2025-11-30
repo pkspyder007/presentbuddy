@@ -7,10 +7,11 @@ import * as platformHandlers from './platform';
 import * as storage from './storage';
 import { checkAndPromptAccessibilityPermissions } from './platform/accessibility';
 import { createTray, updateTray, destroyTray } from './tray';
+import { logger } from './logger';
 
 let mainWindow: BrowserWindow | null = null;
 let originalState: OriginalState = {};
-let systemState: SystemState = {
+const systemState: SystemState = {
   desktopIconsHidden: false,
   windowsMinimized: false,
   wallpaperChanged: false,
@@ -20,10 +21,40 @@ let systemState: SystemState = {
 
 const platform = getPlatform();
 
+// Set up global error handlers for runtime error logging
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception', error, {
+    platform,
+    isPackaged: app.isPackaged,
+  });
+  // Don't exit in production, just log
+  if (!app.isPackaged) {
+    throw error;
+  }
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  const error = reason instanceof Error ? reason : new Error(String(reason));
+  logger.error('Unhandled Promise Rejection', error, {
+    platform,
+    isPackaged: app.isPackaged,
+    promise: String(promise),
+  });
+});
+
+// Log app startup
+logger.info('Application starting', {
+  platform,
+  version: app.getVersion(),
+  isPackaged: app.isPackaged,
+  logDir: logger.getLogDir(),
+});
+
 app.whenReady().then(async () => {
+  logger.info('Application ready');
   // Load saved state
   originalState = await storage.getOriginalState();
-  
+
   mainWindow = createWindow();
 
   app.on('activate', () => {
@@ -33,12 +64,22 @@ app.whenReady().then(async () => {
   });
 
   // Check Accessibility permissions on macOS (required for window management)
+  // Only prompt on first start/install
   if (platform === 'macos') {
-    // Check permissions but don't block app startup if missing
-    // The actual operations will show error messages if permissions are needed
-    checkAndPromptAccessibilityPermissions(true).catch((error) => {
-      console.warn('Error checking accessibility permissions:', error);
-    });
+    const hasRequestedBefore = await storage.hasRequestedAccessibilityPermissions();
+    if (!hasRequestedBefore) {
+      logger.info('First start detected, checking accessibility permissions');
+      const hasPermissions = await checkAndPromptAccessibilityPermissions(true);
+      if (hasPermissions) {
+        await storage.setAccessibilityPermissionsRequested();
+        logger.info('Accessibility permissions granted on first start');
+      } else {
+        await storage.setAccessibilityPermissionsRequested();
+        logger.info('Accessibility permissions requested (user may need to enable manually)');
+      }
+    } else {
+      logger.debug('Accessibility permissions already requested, skipping prompt');
+    }
   }
 
   // Initialize platform handlers
@@ -54,9 +95,9 @@ app.whenReady().then(async () => {
   });
 
   if (!registered) {
-    console.error('Failed to register global hotkey:', hotkey);
+    logger.warn('Failed to register global hotkey', { hotkey });
   } else {
-    console.log('Global hotkey registered:', hotkey);
+    logger.info('Global hotkey registered', { hotkey });
   }
 
   // Create system tray with handler functions
@@ -68,6 +109,9 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
@@ -78,6 +122,9 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
@@ -88,6 +135,9 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
@@ -98,6 +148,9 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
@@ -111,8 +164,11 @@ app.whenReady().then(async () => {
             wallpaperPath = settings.defaultWallpaper;
           }
         }
-        
-        const originalWallpaperPath = await platformHandlers.changeWallpaper(platform, wallpaperPath);
+
+        const originalWallpaperPath = await platformHandlers.changeWallpaper(
+          platform,
+          wallpaperPath
+        );
         if (!originalState.wallpaperPath) {
           originalState.wallpaperPath = originalWallpaperPath;
         }
@@ -120,6 +176,9 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true, wallpaperPath: originalWallpaperPath };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
@@ -133,6 +192,9 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
@@ -146,6 +208,9 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
@@ -159,6 +224,9 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
@@ -169,6 +237,9 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
@@ -179,21 +250,24 @@ app.whenReady().then(async () => {
         updateTray(mainWindow, systemState);
         return { success: true };
       } catch (error: any) {
+        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+          platform,
+        });
         return { success: false, error: error.message };
       }
     },
     getSystemState: () => systemState,
   };
-  
+
   // Create system tray
   createTray(mainWindow, systemState, trayHandlers);
-  console.log('System tray created');
+  logger.info('System tray created');
 });
 
 app.on('window-all-closed', async () => {
   // Restore all settings before quitting if auto-restore is enabled
   await restoreAllSettings();
-  
+
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -210,6 +284,7 @@ app.on('will-quit', () => {
   globalShortcut.unregisterAll();
   // Destroy system tray
   destroyTray();
+  logger.info('Application quitting');
 });
 
 async function restoreAllSettings() {
@@ -227,7 +302,10 @@ async function restoreAllSettings() {
       await platformHandlers.enableNotifications(platform);
     }
   } catch (error) {
-    console.error('Error restoring settings:', error);
+    logger.error('Error restoring settings', error instanceof Error ? error : new Error(String(error)), {
+      platform,
+      systemState,
+    });
   }
 }
 
@@ -294,7 +372,7 @@ ipcMain.handle(IPC_CHANNELS.CHANGE_WALLPAPER, async (_, path?: string) => {
         wallpaperPath = settings.defaultWallpaper;
       }
     }
-    
+
     const originalWallpaperPath = await platformHandlers.changeWallpaper(platform, wallpaperPath);
     if (!originalState.wallpaperPath) {
       originalState.wallpaperPath = originalWallpaperPath;
@@ -416,7 +494,7 @@ ipcMain.handle(IPC_CHANNELS.SELECT_WALLPAPER_FILE, async () => {
     }
 
     const selectedPath = result.filePaths[0];
-    
+
     // Save to settings
     const settings = await storage.getSettings();
     settings.defaultWallpaper = selectedPath;
@@ -427,4 +505,3 @@ ipcMain.handle(IPC_CHANNELS.SELECT_WALLPAPER_FILE, async () => {
     return { success: false, error: error.message };
   }
 });
-

@@ -1,5 +1,6 @@
 import { app, Tray, Menu, BrowserWindow, nativeImage } from 'electron';
 import { join } from 'path';
+import { existsSync } from 'fs';
 import type { SystemState } from '../shared/types';
 
 let tray: Tray | null = null;
@@ -21,9 +22,8 @@ let ipcHandlers: {
 
 // Get the appropriate icon path for the current platform
 function getTrayIconPath(): string {
-  const { existsSync } = require('fs');
   const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-  const basePath = isDev 
+  const basePath = isDev
     ? join(process.cwd(), 'assets/icons')
     : join(process.resourcesPath || '', 'assets/icons');
 
@@ -56,8 +56,7 @@ function getTrayIconPath(): string {
 // Create a simple tray icon if the file doesn't exist
 function createTrayIcon() {
   const iconPath = getTrayIconPath();
-  const { existsSync } = require('fs');
-  
+
   if (existsSync(iconPath)) {
     const icon = nativeImage.createFromPath(iconPath);
     if (!icon.isEmpty()) {
@@ -68,13 +67,13 @@ function createTrayIcon() {
       return icon;
     }
   }
-  
+
   // Fallback: Try common icon locations
   const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
-  const basePath = isDev 
+  const basePath = isDev
     ? join(process.cwd(), 'assets/icons')
     : join(process.resourcesPath || '', 'assets/icons');
-  
+
   const fallbackPaths = [
     join(basePath, 'icon.png'),
     join(basePath, 'icon.ico'),
@@ -82,7 +81,7 @@ function createTrayIcon() {
     join(__dirname, '../../assets/icons/icon.png'),
     join(__dirname, '../../assets/icons/icon.ico'),
   ];
-  
+
   for (const path of fallbackPaths) {
     if (existsSync(path)) {
       const icon = nativeImage.createFromPath(path);
@@ -96,19 +95,19 @@ function createTrayIcon() {
       }
     }
   }
-  
+
   // Ultimate fallback: create a simple 16x16 colored icon using Buffer
   // Create a simple PNG-like buffer (minimal valid PNG)
   const size = 16;
   const buffer = Buffer.alloc(size * size * 4);
   // Fill with indigo color (RGBA)
   for (let i = 0; i < buffer.length; i += 4) {
-    buffer[i] = 99;     // R
+    buffer[i] = 99; // R
     buffer[i + 1] = 102; // G
     buffer[i + 2] = 241; // B
     buffer[i + 3] = 255; // A
   }
-  
+
   const icon = nativeImage.createFromBuffer(buffer, { width: size, height: size });
   if (process.platform === 'darwin') {
     icon.setTemplateImage(true);
@@ -120,7 +119,7 @@ function createTrayIcon() {
 function createTrayMenu(): Menu {
   const systemState = currentSystemState;
   const allEnabled = Object.values(systemState).every(Boolean);
-  
+
   return Menu.buildFromTemplate([
     {
       label: 'PresentBuddy',
@@ -132,7 +131,7 @@ function createTrayMenu(): Menu {
       click: async () => {
         if (ipcHandlers && mainWindowRef) {
           const allEnabled = Object.values(currentSystemState).every(Boolean);
-          
+
           if (allEnabled) {
             // Disable all
             if (currentSystemState.desktopIconsHidden) await ipcHandlers.showDesktopIcons();
@@ -148,7 +147,7 @@ function createTrayMenu(): Menu {
             if (!currentSystemState.audioMuted) await ipcHandlers.muteAudio();
             if (!currentSystemState.notificationsDisabled) await ipcHandlers.disableNotifications();
           }
-          
+
           // Get updated state and refresh menu
           if (ipcHandlers.getSystemState) {
             currentSystemState = ipcHandlers.getSystemState();
@@ -277,10 +276,10 @@ function createTrayMenu(): Menu {
 // Update the tray menu with current state
 function updateTrayMenu(): void {
   if (!tray) return;
-  
+
   const menu = createTrayMenu();
   tray.setContextMenu(menu);
-  
+
   // Update tooltip
   const enabledCount = Object.values(currentSystemState).filter(Boolean).length;
   const totalCount = Object.keys(currentSystemState).length;
@@ -350,4 +349,3 @@ export function destroyTray(): void {
     tray = null;
   }
 }
-

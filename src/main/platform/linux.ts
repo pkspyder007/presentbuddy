@@ -5,7 +5,21 @@ import { existsSync } from 'fs';
 
 const execAsync = promisify(exec);
 
-const DEFAULT_WALLPAPER = join(__dirname, '../../../assets/wallpapers/default.jpg');
+import { app } from 'electron';
+
+// Get the default wallpaper path - works in both dev and production
+function getDefaultWallpaperPath(): string {
+  const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+  
+  if (isDev) {
+    return join(process.cwd(), 'assets/wallpapers/default.jpg');
+  } else {
+    // Production: assets are in extraResources
+    return join(process.resourcesPath || '', 'assets/wallpapers/default.jpg');
+  }
+}
+
+const DEFAULT_WALLPAPER = getDefaultWallpaperPath();
 
 // Detect desktop environment
 async function getDesktopEnvironment(): Promise<'gnome' | 'kde' | 'xfce' | 'other'> {
@@ -24,11 +38,13 @@ async function getDesktopEnvironment(): Promise<'gnome' | 'kde' | 'xfce' | 'othe
 export async function hideDesktopIcons(): Promise<void> {
   try {
     const de = await getDesktopEnvironment();
-    
+
     if (de === 'gnome') {
       await execAsync('gsettings set org.gnome.desktop.background show-desktop-icons false');
     } else if (de === 'kde') {
-      await execAsync('kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 1 --group Applets --group 1 --key plugin org.kde.desktopcontainment');
+      await execAsync(
+        'kwriteconfig5 --file ~/.config/plasma-org.kde.plasma.desktop-appletsrc --group Containments --group 1 --group Applets --group 1 --key plugin org.kde.desktopcontainment'
+      );
     } else {
       throw new Error('Desktop environment not supported for hiding icons');
     }
@@ -40,12 +56,14 @@ export async function hideDesktopIcons(): Promise<void> {
 export async function showDesktopIcons(): Promise<void> {
   try {
     const de = await getDesktopEnvironment();
-    
+
     if (de === 'gnome') {
       await execAsync('gsettings set org.gnome.desktop.background show-desktop-icons true');
     } else if (de === 'kde') {
       // KDE icons are usually always visible, just refresh
-      await execAsync('qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "var allDesktops = desktops();"');
+      await execAsync(
+        'qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "var allDesktops = desktops();"'
+      );
     } else {
       throw new Error('Desktop environment not supported for showing icons');
     }
@@ -85,34 +103,45 @@ export async function restoreAllWindows(): Promise<void> {
 export async function changeWallpaper(path?: string): Promise<string> {
   try {
     let wallpaperPath = path;
-    
+
     if (!wallpaperPath) {
       if (existsSync(DEFAULT_WALLPAPER)) {
         wallpaperPath = DEFAULT_WALLPAPER;
       } else {
-        throw new Error('Please provide a wallpaper path or add a default wallpaper to assets/wallpapers/');
+        throw new Error(
+          'Please provide a wallpaper path or add a default wallpaper to assets/wallpapers/'
+        );
       }
     }
-    
+
     const de = await getDesktopEnvironment();
     let currentWallpaper = '';
-    
+
     if (de === 'gnome') {
       // Get current wallpaper
       const { stdout } = await execAsync('gsettings get org.gnome.desktop.background picture-uri');
-      currentWallpaper = stdout.trim().replace(/^'file:\/\//, '').replace(/'$/, '');
-      
+      currentWallpaper = stdout
+        .trim()
+        .replace(/^'file:\/\//, '')
+        .replace(/'$/, '');
+
       // Set new wallpaper
-      await execAsync(`gsettings set org.gnome.desktop.background picture-uri "file://${wallpaperPath!}"`);
+      await execAsync(
+        `gsettings set org.gnome.desktop.background picture-uri "file://${wallpaperPath!}"`
+      );
     } else if (de === 'kde') {
-      await execAsync(`qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "var allDesktops = desktops();for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = 'org.kde.image';d.currentConfigGroup = Array('Wallpaper', 'org.kde.image', 'General');d.writeConfig('Image', 'file://${wallpaperPath!}')}"`);
+      await execAsync(
+        `qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "var allDesktops = desktops();for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = 'org.kde.image';d.currentConfigGroup = Array('Wallpaper', 'org.kde.image', 'General');d.writeConfig('Image', 'file://${wallpaperPath!}')}"`
+      );
     } else if (de === 'xfce') {
-      await execAsync(`xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -s "${wallpaperPath!}"`);
+      await execAsync(
+        `xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -s "${wallpaperPath!}"`
+      );
     } else {
       // Try feh as fallback
       await execAsync(`feh --bg-scale "${wallpaperPath!}"`);
     }
-    
+
     return currentWallpaper;
   } catch (error: any) {
     throw new Error(`Failed to change wallpaper: ${error.message}`);
@@ -122,13 +151,19 @@ export async function changeWallpaper(path?: string): Promise<string> {
 export async function restoreWallpaper(originalPath: string): Promise<void> {
   try {
     const de = await getDesktopEnvironment();
-    
+
     if (de === 'gnome') {
-      await execAsync(`gsettings set org.gnome.desktop.background picture-uri "file://${originalPath}"`);
+      await execAsync(
+        `gsettings set org.gnome.desktop.background picture-uri "file://${originalPath}"`
+      );
     } else if (de === 'kde') {
-      await execAsync(`qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "var allDesktops = desktops();for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = 'org.kde.image';d.currentConfigGroup = Array('Wallpaper', 'org.kde.image', 'General');d.writeConfig('Image', 'file://${originalPath}')}"`);
+      await execAsync(
+        `qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "var allDesktops = desktops();for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = 'org.kde.image';d.currentConfigGroup = Array('Wallpaper', 'org.kde.image', 'General');d.writeConfig('Image', 'file://${originalPath}')}"`
+      );
     } else if (de === 'xfce') {
-      await execAsync(`xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -s "${originalPath}"`);
+      await execAsync(
+        `xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image -s "${originalPath}"`
+      );
     } else {
       await execAsync(`feh --bg-scale "${originalPath}"`);
     }
@@ -141,13 +176,17 @@ export async function muteAudio(): Promise<number> {
   try {
     // Try PulseAudio first
     try {
-      const { stdout } = await execAsync('pactl get-sink-volume @DEFAULT_SINK@ | grep -oP "\\d+%" | head -1 | sed "s/%//"');
+      const { stdout } = await execAsync(
+        'pactl get-sink-volume @DEFAULT_SINK@ | grep -oP "\\d+%" | head -1 | sed "s/%//"'
+      );
       const volume = parseInt(stdout.trim()) || 50;
       await execAsync('pactl set-sink-mute @DEFAULT_SINK@ 1');
       return volume;
     } catch {
       // Fallback to ALSA
-      const { stdout } = await execAsync("amixer get Master | grep -oP '\\[\\d+%\\]' | head -1 | sed 's/[\\[\\]%]//g'");
+      const { stdout } = await execAsync(
+        "amixer get Master | grep -oP '\\[\\d+%\\]' | head -1 | sed 's/[\\[\\]%]//g'"
+      );
       const volume = parseInt(stdout.trim()) || 50;
       await execAsync('amixer set Master mute');
       return volume;
@@ -206,4 +245,3 @@ export async function enableNotifications(): Promise<void> {
     throw new Error(`Failed to enable notifications: ${error.message}`);
   }
 }
-

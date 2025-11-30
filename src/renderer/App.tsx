@@ -5,14 +5,7 @@ import WallpaperToggle from './components/WallpaperToggle';
 import { useSystemState } from './hooks/useSystemState';
 
 function App() {
-  const {
-    systemState,
-    platform,
-    toggleFeature,
-    toggleAll,
-    isLoading,
-    error,
-  } = useSystemState();
+  const { systemState, platform, toggleFeature, toggleAll, isLoading, error } = useSystemState();
 
   // Listen for global hotkey to toggle all features
   useEffect(() => {
@@ -41,8 +34,8 @@ function App() {
             <span className="text-slate-600 dark:text-slate-300">
               <span className="font-semibold text-slate-700 dark:text-slate-200">
                 {Object.values(systemState).filter(Boolean).length}
-              </span>
-              {' '}of {Object.keys(systemState).length} active
+              </span>{' '}
+              of {Object.keys(systemState).length} active
             </span>
           </div>
         </div>
@@ -52,7 +45,11 @@ function App() {
           <div className="bg-red-50/80 dark:bg-red-900/20 backdrop-blur-sm border border-red-200/50 dark:border-red-800/50 text-red-700 dark:text-red-300 px-4 py-3 rounded-xl text-sm shadow-sm">
             <div className="flex items-center gap-2">
               <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                  clipRule="evenodd"
+                />
               </svg>
               {error}
             </div>
@@ -121,4 +118,3 @@ function App() {
 }
 
 export default App;
-

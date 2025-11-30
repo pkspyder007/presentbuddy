@@ -4,7 +4,6 @@ interface StatusIndicatorProps {
   systemState: SystemState;
 }
 
-export default function StatusIndicator({ systemState }: StatusIndicatorProps) {
+export default function StatusIndicator({ systemState: _systemState }: StatusIndicatorProps) {
   return null;
 }
-

@@ -38,9 +38,10 @@ export default function FeatureToggle({
           className={`
             relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-out flex-shrink-0
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white
-            ${enabled 
-              ? 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-md shadow-blue-500/20' 
-              : 'bg-slate-200'
+            ${
+              enabled
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-md shadow-blue-500/20'
+                : 'bg-slate-200'
             }
             ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 active:scale-95'}
             ${enabled ? 'focus:ring-blue-500' : 'focus:ring-slate-400'}
@@ -58,4 +59,3 @@ export default function FeatureToggle({
     </div>
   );
 }
-

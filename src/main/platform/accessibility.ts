@@ -7,7 +7,7 @@ const execAsync = promisify(exec);
 /**
  * Check if the app has Accessibility permissions on macOS
  * Uses AppleScript to check if the app is trusted for accessibility
- * 
+ *
  * @returns Promise<boolean> - true if permissions are granted, false otherwise
  */
 export async function hasAccessibilityPermissions(): Promise<boolean> {
@@ -20,7 +20,7 @@ export async function hasAccessibilityPermissions(): Promise<boolean> {
     // Check using osascript with a direct approach
     // We'll try to access accessibility features and see if it works
     const checkScript = `osascript -e 'tell application "System Events" to get name of first process'`;
-    
+
     try {
       await execAsync(checkScript);
       // If we can execute this, we likely have permissions
@@ -35,7 +35,7 @@ export async function hasAccessibilityPermissions(): Promise<boolean> {
     // However, the most reliable way is to actually try to use accessibility features
     // and catch the error. Since we can't easily check TCC database without root,
     // we'll return true and let the actual operations fail gracefully with error messages.
-    
+
     // For now, we'll assume permissions are granted if we can run the check script
     // The actual window operations will fail with clear error messages if permissions are missing
     return true;
@@ -48,7 +48,7 @@ export async function hasAccessibilityPermissions(): Promise<boolean> {
 
 /**
  * Show a dialog prompting the user to enable Accessibility permissions
- * 
+ *
  * @param windowTitle - Optional title for the dialog
  */
 export async function showAccessibilityPermissionDialog(windowTitle?: string): Promise<void> {
@@ -62,29 +62,35 @@ Then add "${process.execPath}" to the list of allowed apps.
 
 After enabling, please restart the application.`;
 
-  await dialog.showMessageBox({
-    type: 'warning',
-    title,
-    message,
-    buttons: ['Open System Settings', 'OK'],
-    defaultId: 1,
-    cancelId: 1,
-  }).then((result) => {
-    if (result.response === 0) {
-      // Open System Settings to Accessibility pane
-      execAsync('open "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"').catch((err) => {
-        console.error('Failed to open System Settings:', err);
-        // Fallback: try opening general System Settings
-        execAsync('open "x-apple.systempreferences:com.apple.preference.security"').catch(console.error);
-      });
-    }
-  });
+  await dialog
+    .showMessageBox({
+      type: 'warning',
+      title,
+      message,
+      buttons: ['Open System Settings', 'OK'],
+      defaultId: 1,
+      cancelId: 1,
+    })
+    .then((result) => {
+      if (result.response === 0) {
+        // Open System Settings to Accessibility pane
+        execAsync(
+          'open "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"'
+        ).catch((err) => {
+          console.error('Failed to open System Settings:', err);
+          // Fallback: try opening general System Settings
+          execAsync('open "x-apple.systempreferences:com.apple.preference.security"').catch(
+            console.error
+          );
+        });
+      }
+    });
 }
 
 /**
  * Check accessibility permissions and show dialog if needed
  * Call this on app startup for macOS
- * 
+ *
  * @param showDialogIfMissing - Whether to show a dialog if permissions are missing
  * @returns Promise<boolean> - true if permissions are granted or check passed
  */
@@ -96,11 +102,10 @@ export async function checkAndPromptAccessibilityPermissions(
   }
 
   const hasPermissions = await hasAccessibilityPermissions();
-  
+
   if (!hasPermissions && showDialogIfMissing) {
     await showAccessibilityPermissionDialog();
   }
-  
+
   return hasPermissions;
 }
-

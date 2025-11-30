@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import { readFile, writeFile, mkdir } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import type { OriginalState, AppSettings } from '../shared/types';
@@ -10,6 +10,7 @@ const storagePath = join(userDataPath, 'storage.json');
 interface StorageData {
   originalState: OriginalState;
   settings: AppSettings;
+  hasRequestedAccessibilityPermissions?: boolean;
 }
 
 const defaultStorage: StorageData = {
@@ -18,6 +19,7 @@ const defaultStorage: StorageData = {
     autoRestore: true,
     startMinimized: false,
   },
+  hasRequestedAccessibilityPermissions: false,
 };
 
 export async function loadStorage(): Promise<StorageData> {
@@ -64,3 +66,11 @@ export async function saveSettings(settings: AppSettings): Promise<void> {
   await saveStorage({ settings });
 }
 
+export async function hasRequestedAccessibilityPermissions(): Promise<boolean> {
+  const storage = await loadStorage();
+  return storage.hasRequestedAccessibilityPermissions || false;
+}
+
+export async function setAccessibilityPermissionsRequested(): Promise<void> {
+  await saveStorage({ hasRequestedAccessibilityPermissions: true });
+}

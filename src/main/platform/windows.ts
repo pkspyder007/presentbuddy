@@ -5,7 +5,21 @@ import { existsSync } from 'fs';
 
 const execAsync = promisify(exec);
 
-const DEFAULT_WALLPAPER = join(__dirname, '../../../assets/wallpapers/default.jpg');
+import { app } from 'electron';
+
+// Get the default wallpaper path - works in both dev and production
+function getDefaultWallpaperPath(): string {
+  const isDev = process.env.NODE_ENV === 'development' || !app.isPackaged;
+  
+  if (isDev) {
+    return join(process.cwd(), 'assets/wallpapers/default.jpg');
+  } else {
+    // Production: assets are in extraResources
+    return join(process.resourcesPath || '', 'assets/wallpapers/default.jpg');
+  }
+}
+
+const DEFAULT_WALLPAPER = getDefaultWallpaperPath();
 
 export async function hideDesktopIcons(): Promise<void> {
   try {
@@ -45,7 +59,9 @@ export async function minimizeAllWindows(): Promise<void> {
 export async function restoreAllWindows(): Promise<void> {
   try {
     // Restore windows using Win+M (minimize) then Win+Shift+M (restore)
-    await execAsync('powershell -Command "$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys([char]91+[char]77+[char]93+[char]91+[char]16+[char]77+[char]93)"');
+    await execAsync(
+      'powershell -Command "$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys([char]91+[char]77+[char]93+[char]91+[char]16+[char]77+[char]93)"'
+    );
   } catch (error: any) {
     throw new Error(`Failed to restore windows: ${error.message}`);
   }
@@ -54,28 +70,32 @@ export async function restoreAllWindows(): Promise<void> {
 export async function changeWallpaper(path?: string): Promise<string> {
   try {
     let wallpaperPath = path;
-    
+
     if (!wallpaperPath) {
       // If no path provided and default doesn't exist, use a solid color approach
       if (existsSync(DEFAULT_WALLPAPER)) {
         wallpaperPath = DEFAULT_WALLPAPER;
       } else {
         // For now, we'll use the system's default or let the user provide one
-        throw new Error('Please provide a wallpaper path or add a default wallpaper to assets/wallpapers/');
+        throw new Error(
+          'Please provide a wallpaper path or add a default wallpaper to assets/wallpapers/'
+        );
       }
     }
-    
+
     // Get current wallpaper first
     const { stdout } = await execAsync(
       'reg query "HKEY_CURRENT_USER\\Control Panel\\Desktop" /v Wallpaper'
     );
-    const currentWallpaper = stdout.split(/\r?\n/).find((line: string) => line.includes('Wallpaper'));
-    
+    const currentWallpaper = stdout
+      .split(/\r?\n/)
+      .find((line: string) => line.includes('Wallpaper'));
+
     // Set new wallpaper
     await execAsync(
       `powershell -Command "Add-Type -TypeDefinition 'using System; using System.Runtime.InteropServices; public class Wallpaper { [DllImport(\\"user32.dll\\", CharSet=CharSet.Auto)] public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni); public static void Set(string path) { SystemParametersInfo(20, 0, path, 3); } }'; [Wallpaper]::Set('${wallpaperPath!.replace(/\\/g, '\\\\')}')"`
     );
-    
+
     // Extract current wallpaper path from registry output
     const originalPath = currentWallpaper ? currentWallpaper.split(/\s+/).pop()?.trim() : '';
     return originalPath || '';
@@ -97,14 +117,14 @@ export async function restoreWallpaper(originalPath: string): Promise<void> {
 export async function muteAudio(): Promise<number> {
   try {
     // Get current volume
-    const { stdout } = await execAsync(
-      'powershell -Command "(Get-AudioDevice -List).Volume"'
-    );
+    const { stdout } = await execAsync('powershell -Command "(Get-AudioDevice -List).Volume"');
     const volume = parseInt(stdout.trim()) || 50;
-    
+
     // Mute audio
-    await execAsync('powershell -Command "$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys([char]173)"');
-    
+    await execAsync(
+      'powershell -Command "$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys([char]173)"'
+    );
+
     return volume;
   } catch (error: any) {
     // Fallback: use nircmd if available, or try alternative method
@@ -120,10 +140,10 @@ export async function muteAudio(): Promise<number> {
 export async function unmuteAudio(volumeLevel: number): Promise<void> {
   try {
     // Unmute and set volume
-    await execAsync('powershell -Command "$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys([char]174)"');
     await execAsync(
-      `powershell -Command "(Get-AudioDevice -List).Volume = ${volumeLevel}"`
+      'powershell -Command "$wshell = New-Object -ComObject wscript.shell; $wshell.SendKeys([char]174)"'
     );
+    await execAsync(`powershell -Command "(Get-AudioDevice -List).Volume = ${volumeLevel}"`);
   } catch (error: any) {
     try {
       await execAsync('nircmd.exe mutesysvolume 0');
@@ -158,4 +178,3 @@ export async function enableNotifications(): Promise<void> {
     throw new Error(`Failed to enable notifications: ${error.message}`);
   }
 }
-

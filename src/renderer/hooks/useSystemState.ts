@@ -28,57 +28,60 @@ export function useSystemState() {
     loadState();
   }, []);
 
-  const toggleFeature = useCallback(async (feature: keyof SystemState) => {
-    setIsLoading(true);
-    setError(null);
+  const toggleFeature = useCallback(
+    async (feature: keyof SystemState) => {
+      setIsLoading(true);
+      setError(null);
 
-    try {
-      const currentValue = systemState[feature];
-      let result;
+      try {
+        const currentValue = systemState[feature];
+        let result;
 
-      switch (feature) {
-        case 'desktopIconsHidden':
-          result = currentValue
-            ? await window.electronAPI.showDesktopIcons()
-            : await window.electronAPI.hideDesktopIcons();
-          break;
-        case 'windowsMinimized':
-          result = currentValue
-            ? await window.electronAPI.restoreAllWindows()
-            : await window.electronAPI.minimizeAllWindows();
-          break;
-        case 'wallpaperChanged':
-          result = currentValue
-            ? await window.electronAPI.restoreWallpaper()
-            : await window.electronAPI.changeWallpaper();
-          break;
-        case 'audioMuted':
-          result = currentValue
-            ? await window.electronAPI.unmuteAudio()
-            : await window.electronAPI.muteAudio();
-          break;
-        case 'notificationsDisabled':
-          result = currentValue
-            ? await window.electronAPI.enableNotifications()
-            : await window.electronAPI.disableNotifications();
-          break;
-        default:
-          throw new Error('Unknown feature');
+        switch (feature) {
+          case 'desktopIconsHidden':
+            result = currentValue
+              ? await window.electronAPI.showDesktopIcons()
+              : await window.electronAPI.hideDesktopIcons();
+            break;
+          case 'windowsMinimized':
+            result = currentValue
+              ? await window.electronAPI.restoreAllWindows()
+              : await window.electronAPI.minimizeAllWindows();
+            break;
+          case 'wallpaperChanged':
+            result = currentValue
+              ? await window.electronAPI.restoreWallpaper()
+              : await window.electronAPI.changeWallpaper();
+            break;
+          case 'audioMuted':
+            result = currentValue
+              ? await window.electronAPI.unmuteAudio()
+              : await window.electronAPI.muteAudio();
+            break;
+          case 'notificationsDisabled':
+            result = currentValue
+              ? await window.electronAPI.enableNotifications()
+              : await window.electronAPI.disableNotifications();
+            break;
+          default:
+            throw new Error('Unknown feature');
+        }
+
+        if (!result.success) {
+          throw new Error(result.error || 'Operation failed');
+        }
+
+        // Update state
+        const newState = await window.electronAPI.getSystemState();
+        setSystemState(newState);
+      } catch (err: any) {
+        setError(err.message || 'Failed to toggle feature');
+      } finally {
+        setIsLoading(false);
       }
-
-      if (!result.success) {
-        throw new Error(result.error || 'Operation failed');
-      }
-
-      // Update state
-      const newState = await window.electronAPI.getSystemState();
-      setSystemState(newState);
-    } catch (err: any) {
-      setError(err.message || 'Failed to toggle feature');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [systemState]);
+    },
+    [systemState]
+  );
 
   const toggleAll = useCallback(async () => {
     setIsLoading(true);
@@ -86,7 +89,7 @@ export function useSystemState() {
 
     try {
       const allEnabled = Object.values(systemState).every(Boolean);
-      
+
       if (allEnabled) {
         // Disable all
         await Promise.all([
@@ -126,4 +129,3 @@ export function useSystemState() {
     error,
   };
 }
-

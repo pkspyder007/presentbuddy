@@ -13,22 +13,21 @@ export const IPC_CHANNELS = {
   UNMUTE_AUDIO: 'system:unmute-audio',
   DISABLE_NOTIFICATIONS: 'system:disable-notifications',
   ENABLE_NOTIFICATIONS: 'system:enable-notifications',
-  
+
   // State management
   GET_SYSTEM_STATE: 'state:get-system-state',
   GET_PLATFORM: 'state:get-platform',
   SAVE_ORIGINAL_STATE: 'state:save-original-state',
   GET_ORIGINAL_STATE: 'state:get-original-state',
   CLEAR_ORIGINAL_STATE: 'state:clear-original-state',
-  
+
   // Settings
   GET_SETTINGS: 'settings:get',
   SAVE_SETTINGS: 'settings:save',
-  
+
   // Wallpaper
   SELECT_WALLPAPER_FILE: 'wallpaper:select-file',
-  
+
   // Hotkey
   TOGGLE_ALL: 'hotkey:toggle-all',
 } as const;
-

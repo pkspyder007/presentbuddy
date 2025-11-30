@@ -117,4 +117,3 @@ export async function enableNotifications(platform: Platform): Promise<void> {
       return linux.enableNotifications();
   }
 }
-

@@ -9,15 +9,16 @@ export default function MasterToggle({ enabled, onToggle, disabled, platform }: 
   return (
     <div className="flex items-center justify-between">
       <div className="flex-1">
-        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">Master Control</h2>
+        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-1">
+          Master Control
+        </h2>
         <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-          {enabled 
+          {enabled
             ? 'All presentation features are active. Toggle off to restore everything.'
-            : 'Enable all features at once to prepare your screen for presentations.'
-          }
+            : 'Enable all features at once to prepare your screen for presentations.'}
         </p>
       </div>
-      
+
       <div className="flex items-center gap-4">
         <div className="text-right hidden sm:block">
           <div className="text-xs text-slate-400 dark:text-slate-500 mb-1">Quick toggle</div>
@@ -25,7 +26,7 @@ export default function MasterToggle({ enabled, onToggle, disabled, platform }: 
             {platform === 'macos' ? '⌘⇧P' : 'Ctrl+Shift+P'}
           </kbd>
         </div>
-        
+
         <div className="relative">
           <button
             onClick={onToggle}
@@ -33,9 +34,10 @@ export default function MasterToggle({ enabled, onToggle, disabled, platform }: 
             className={`
               relative inline-flex h-7 w-12 items-center rounded-full transition-all duration-300 ease-out
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white
-              ${enabled 
-                ? 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-md shadow-blue-500/30' 
-                : 'bg-slate-200'
+              ${
+                enabled
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-md shadow-blue-500/30'
+                  : 'bg-slate-200'
               }
               ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-105 active:scale-95'}
               ${enabled ? 'focus:ring-blue-500' : 'focus:ring-slate-400'}
@@ -54,4 +56,3 @@ export default function MasterToggle({ enabled, onToggle, disabled, platform }: 
     </div>
   );
 }
-
