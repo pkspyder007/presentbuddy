@@ -18,12 +18,9 @@ on:
         type: boolean
 
 jobs:
-  build:
-    name: Build ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
     
     steps:
       - name: Checkout code
@@ -36,29 +33,93 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build application
-        run: npm run build
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build application for Windows
+        run: npm run build:win
 
-      - name: Upload artifacts
+      - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: quickpresent-oss-${{ matrix.os }}-${{ github.sha }}
+          name: windows-build-${{ github.sha }}
+          path: |
+            dist/*.exe
+            dist/*.zip
+          retention-days: 30
+          if-no-files-found: warn
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build window helper addon
+        run: npm run build:window-helper-addon
+
+      - name: Build application for macOS
+        run: npm run build:mac
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build-${{ github.sha }}
           path: |
             dist/*.dmg
-            dist/*.exe
+            dist/*.dmg.blockmap
+          retention-days: 30
+          if-no-files-found: warn
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libnss3-dev libatk-bridge2.0-dev libdrm2 libxkbcommon-dev libxcomposite-dev libxdamage-dev libxrandr-dev libgbm-dev libasound2-dev
+
+      - name: Build application for Linux
+        run: npm run build:linux
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build-${{ github.sha }}
+          path: |
             dist/*.AppImage
             dist/*.deb
             dist/*.rpm
-            dist/*.zip
           retention-days: 30
+          if-no-files-found: warn
 
   release:
     name: Create Release
-    needs: build
+    needs: [build-windows, build-macos, build-linux]
     runs-on: ubuntu-latest
     if: |
       (startsWith(github.ref, 'refs/tags/v') || github.event.inputs.create_release == 'true') && 
@@ -67,24 +128,63 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          pattern: '*-build-*'
+          merge-multiple: true
 
       - name: Get version
         id: get_version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF#refs/tags/v}"
+            TAG_NAME="v$VERSION"
+          else
+            VERSION=$(node -p "require('./package.json').version")
+            TAG_NAME="v$VERSION"
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
+          echo "Tag: $TAG_NAME"
+
+      - name: Get changelog
+        id: changelog
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+            CURRENT_TAG="${GITHUB_REF#refs/tags/}"
+            PREV_TAG=$(git describe --tags --abbrev=0 ${CURRENT_TAG}^ 2>/dev/null || echo "")
+            if [ -z "$PREV_TAG" ]; then
+              CHANGELOG=$(git log --pretty=format:"- %s" ${CURRENT_TAG})
+            else
+              CHANGELOG=$(git log --pretty=format:"- %s" ${PREV_TAG}..${CURRENT_TAG})
+            fi
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s" -10)
+          fi
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="- No changes listed"
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: List artifacts
+        run: |
+          echo "Artifacts found:"
+          find artifacts -type f -name "*" || echo "No artifacts found"
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: artifacts/**/*
           name: Release v${{ steps.get_version.outputs.version }}
+          tag_name: ${{ steps.get_version.outputs.tag_name }}
           body: |
             ## QuickPresent OSS v${{ steps.get_version.outputs.version }}
             
@@ -124,9 +224,10 @@ jobs:
             
             ### 📝 Changes
             
-            See the commit history for details.
+            ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') || contains(github.ref, 'rc') }}
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
