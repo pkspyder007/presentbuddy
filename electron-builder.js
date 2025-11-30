@@ -66,12 +66,20 @@ function logBuildConfig() {
   log.section('Checking Native Helpers');
   const macHelper = existsSync('native/window-helper/bin/MacWindowHelper');
   const winHelper = existsSync('native/window-helper/bin/WindowHelper');
+  const macAddon = existsSync('native/window-helper-addon/build/Release/window_helper.node');
   
   if (macHelper) {
     const size = getFileSize('native/window-helper/bin/MacWindowHelper');
     log.success(`MacWindowHelper found (${size})`);
   } else {
     log.warn('MacWindowHelper not found - will be skipped for macOS builds');
+  }
+  
+  if (macAddon) {
+    const size = getFileSize('native/window-helper-addon/build/Release/window_helper.node');
+    log.success(`Window Helper Addon found (${size})`);
+  } else {
+    log.warn('Window Helper Addon not found - run npm run build:window-helper-addon first');
   }
   
   if (winHelper) {
@@ -182,7 +190,17 @@ module.exports = {
         from: 'assets',
         to: 'assets',
       },
-      // Include macOS window helper binary
+      // Include macOS window helper addon
+      ...(existsSync('native/window-helper-addon/build/Release/window_helper.node')
+        ? [
+            {
+              from: 'native/window-helper-addon',
+              to: 'native/window-helper-addon',
+              filter: ['**/*.node', '**/*.js', '**/*.d.ts', 'package.json'],
+            },
+          ]
+        : []),
+      // Include macOS window helper binary (legacy, can be removed later)
       ...(existsSync('native/window-helper/bin/MacWindowHelper')
         ? [
             {
