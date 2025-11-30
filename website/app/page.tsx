@@ -20,7 +20,7 @@ export default function Home() {
     {
       icon: Monitor,
       title: 'Hide Desktop Icons',
-      description: 'Temporarily hide desktop icons on Windows, macOS, and Linux for a clean presentation view.',
+      description: 'Temporarily hide desktop icons on macOS for a clean presentation view.',
     },
     {
       icon: Minimize2,
@@ -71,7 +71,7 @@ export default function Home() {
     {
       number: '1',
       title: 'Download & Install',
-      description: 'Download PresentBuddy for Windows, macOS, or Linux. Installation takes less than a minute.',
+      description: 'Download PresentBuddy for macOS. Windows and Linux versions coming soon. Installation takes less than a minute.',
     },
     {
       number: '2',
@@ -115,7 +115,7 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
               <Button size="lg" className="w-full sm:w-auto">
                 <Download className="mr-2 w-4 h-4" />
-                Download for Free
+                Download for macOS
               </Button>
               <Button size="lg" variant="outline" className="w-full sm:w-auto">
                 <Github className="mr-2 w-4 h-4" />
@@ -123,11 +123,20 @@ export default function Home() {
               </Button>
             </div>
 
+            {/* Platform Support */}
+            <div className="mb-8">
+              <div className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+                <span className="font-medium">macOS Available Now</span>
+                <span className="text-blue-500">•</span>
+                <span>Windows & Linux Coming Soon</span>
+              </div>
+            </div>
+
             {/* Feature List */}
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-gray-600">
               <div className="flex items-center justify-center gap-1.5">
                 <Check className="w-4 h-4 flex-shrink-0 text-gray-400" />
-                <span>Windows, macOS & Linux</span>
+                <span>macOS Available</span>
               </div>
               <div className="flex items-center justify-center gap-1.5">
                 <Check className="w-4 h-4 flex-shrink-0 text-gray-400" />
@@ -268,13 +277,13 @@ export default function Home() {
                 Ready to Present Like a Pro?
               </h2>
               <p className="text-base text-gray-600 mb-8 leading-relaxed">
-                Download PresentBuddy for free and transform your screen in seconds. 
-                No sign-up required. No credit card needed. Just download and go.
+                Download PresentBuddy for macOS and transform your screen in seconds. 
+                Windows and Linux versions coming soon. No sign-up required. No credit card needed. Just download and go.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Button size="lg" className="w-full sm:w-auto">
                   <Download className="mr-2 w-4 h-4" />
-                  Download Now
+                  Download for macOS
                 </Button>
                 <Button size="lg" variant="outline" className="w-full sm:w-auto">
                   <Github className="mr-2 w-4 h-4" />
@@ -298,10 +307,14 @@ export default function Home() {
                 </p>
               </div>
               <div className="flex flex-col md:flex-row items-center gap-5 text-sm font-normal text-gray-600">
-                <a href="#" className="hover:text-gray-950 transition-colors">GitHub</a>
-                <a href="#" className="hover:text-gray-950 transition-colors">Documentation</a>
-                <a href="#" className="hover:text-gray-950 transition-colors">Contributing</a>
-                <a href="#" className="hover:text-gray-950 transition-colors">License</a>
+                <a 
+                  href="https://github.com/pkspyder007/quickpresent-oss" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-gray-950 transition-colors"
+                >
+                  GitHub
+                </a>
               </div>
             </div>
             <div className="mt-8 pt-8 border-t border-gray-200 text-center text-sm font-normal text-gray-500">
