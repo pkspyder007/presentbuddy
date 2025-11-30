@@ -86,7 +86,43 @@ export default function Home() {
   ]
 
   return (
-    <div className="min-h-screen bg-white">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: 'PresentBuddy',
+            applicationCategory: 'UtilityApplication',
+            operatingSystem: ['Windows', 'macOS', 'Linux'],
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'USD',
+            },
+            description: 'Free, open-source tool to prepare your screen for presentations. Hide desktop icons, minimize windows, change wallpaper, mute audio, and disable notifications with one click.',
+            url: 'https://github.com/pkspyder007/presentbuddy',
+            author: {
+              '@type': 'Person',
+              name: 'Praveen',
+              url: 'https://github.com/pkspyder007',
+            },
+            license: 'https://opensource.org/licenses/MIT',
+            screenshot: 'https://github.com/pkspyder007/presentbuddy/website/public/screenshot.png',
+            featureList: [
+              'Hide Desktop Icons',
+              'Minimize All Windows',
+              'Change Wallpaper',
+              'Mute System Audio',
+              'Disable Notifications',
+              'One-Click Toggle',
+              'Auto-Restore Settings',
+            ],
+          }),
+        }}
+      />
+      <div className="min-h-screen bg-white">
       {/* Hero Section */}
       <section className="pt-24 pb-20 md:pt-32 md:pb-28">
         <div className="container mx-auto px-6 md:px-8">
@@ -113,18 +149,42 @@ export default function Home() {
 
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-              <Button size="lg" className="w-full sm:w-auto">
-                <Download className="mr-2 w-4 h-4" />
-                Download for macOS
+              <Button 
+                size="lg" 
+                className="w-full sm:w-auto"
+                asChild
+              >
+                <a 
+                  href="https://github.com/pkspyder007/presentbuddy/actions/runs/19802763954/artifacts/4717926343" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Download className="mr-2 w-4 h-4" />
+                  Download for macOS
+                </a>
               </Button>
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                <Github className="mr-2 w-4 h-4" />
-                View on GitHub
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="w-full sm:w-auto"
+                asChild
+              >
+                <a 
+                  href="https://github.com/pkspyder007/presentbuddy" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Github className="mr-2 w-4 h-4" />
+                  View on GitHub
+                </a>
               </Button>
             </div>
 
-            {/* Platform Support */}
+            {/* Download Info */}
             <div className="mb-8">
+              <p className="text-sm text-gray-500 mb-4">
+                Click "Download for macOS" to view the latest builds. Select the most recent workflow run and download the DMG artifact.
+              </p>
               <div className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
                 <span className="font-medium">macOS Available Now</span>
                 <span className="text-blue-500">•</span>
@@ -281,13 +341,34 @@ export default function Home() {
                 Windows and Linux versions coming soon. No sign-up required. No credit card needed. Just download and go.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button size="lg" className="w-full sm:w-auto">
-                  <Download className="mr-2 w-4 h-4" />
-                  Download for macOS
+                <Button 
+                  size="lg" 
+                  className="w-full sm:w-auto"
+                  asChild
+                >
+                  <a 
+                    href="https://github.com/pkspyder007/presentbuddy/actions" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Download className="mr-2 w-4 h-4" />
+                    Download for macOS
+                  </a>
                 </Button>
-                <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                  <Github className="mr-2 w-4 h-4" />
-                  View Source Code
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="w-full sm:w-auto"
+                  asChild
+                >
+                  <a 
+                    href="https://github.com/pkspyder007/presentbuddy" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Github className="mr-2 w-4 h-4" />
+                    View Source Code
+                  </a>
                 </Button>
               </div>
             </div>
@@ -334,5 +415,6 @@ export default function Home() {
         </div>
       </footer>
     </div>
+    </>
   )
 }

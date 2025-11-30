@@ -2,6 +2,8 @@
 
 Prepare your screen for professional presentations with one click.
 
+![PresentBuddy Screenshot](website/public/screenshot.png)
+
 ## ✨ Features
 
 - **Hide Desktop Icons** - Temporarily hide desktop icons on Windows/macOS/Linux
