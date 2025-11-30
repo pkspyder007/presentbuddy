@@ -21,6 +21,19 @@ const systemState: SystemState = {
 
 const platform = getPlatform();
 
+// Helper function to update system state and notify both tray and renderer
+function updateSystemState(newState?: Partial<SystemState>): void {
+  if (newState) {
+    Object.assign(systemState, newState);
+  }
+  // Update tray
+  updateTray(mainWindow, systemState);
+  // Notify renderer
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(IPC_CHANNELS.SYSTEM_STATE_UPDATED, systemState);
+  }
+}
+
 // Set up global error handlers for runtime error logging
 process.on('uncaughtException', (error) => {
   logger.error('Uncaught Exception', error, {
@@ -105,8 +118,7 @@ app.whenReady().then(async () => {
     hideDesktopIcons: async () => {
       try {
         await platformHandlers.hideDesktopIcons(platform);
-        systemState.desktopIconsHidden = true;
-        updateTray(mainWindow, systemState);
+        updateSystemState({ desktopIconsHidden: true });
         return { success: true };
       } catch (error: any) {
         logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
@@ -118,11 +130,10 @@ app.whenReady().then(async () => {
     showDesktopIcons: async () => {
       try {
         await platformHandlers.showDesktopIcons(platform);
-        systemState.desktopIconsHidden = false;
-        updateTray(mainWindow, systemState);
+        updateSystemState({ desktopIconsHidden: false });
         return { success: true };
       } catch (error: any) {
-        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+        logger.error('showDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
           platform,
         });
         return { success: false, error: error.message };
@@ -131,11 +142,10 @@ app.whenReady().then(async () => {
     minimizeAllWindows: async () => {
       try {
         await platformHandlers.minimizeAllWindows(platform);
-        systemState.windowsMinimized = true;
-        updateTray(mainWindow, systemState);
+        updateSystemState({ windowsMinimized: true });
         return { success: true };
       } catch (error: any) {
-        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+        logger.error('minimizeAllWindows failed', error instanceof Error ? error : new Error(error.message), {
           platform,
         });
         return { success: false, error: error.message };
@@ -144,11 +154,10 @@ app.whenReady().then(async () => {
     restoreAllWindows: async () => {
       try {
         await platformHandlers.restoreAllWindows(platform);
-        systemState.windowsMinimized = false;
-        updateTray(mainWindow, systemState);
+        updateSystemState({ windowsMinimized: false });
         return { success: true };
       } catch (error: any) {
-        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+        logger.error('restoreAllWindows failed', error instanceof Error ? error : new Error(error.message), {
           platform,
         });
         return { success: false, error: error.message };
@@ -172,11 +181,10 @@ app.whenReady().then(async () => {
         if (!originalState.wallpaperPath) {
           originalState.wallpaperPath = originalWallpaperPath;
         }
-        systemState.wallpaperChanged = true;
-        updateTray(mainWindow, systemState);
+        updateSystemState({ wallpaperChanged: true });
         return { success: true, wallpaperPath: originalWallpaperPath };
       } catch (error: any) {
-        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+        logger.error('changeWallpaper failed', error instanceof Error ? error : new Error(error.message), {
           platform,
         });
         return { success: false, error: error.message };
@@ -186,13 +194,12 @@ app.whenReady().then(async () => {
       try {
         if (originalState.wallpaperPath) {
           await platformHandlers.restoreWallpaper(platform, originalState.wallpaperPath);
-          systemState.wallpaperChanged = false;
           originalState.wallpaperPath = undefined;
         }
-        updateTray(mainWindow, systemState);
+        updateSystemState({ wallpaperChanged: false });
         return { success: true };
       } catch (error: any) {
-        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+        logger.error('restoreWallpaper failed', error instanceof Error ? error : new Error(error.message), {
           platform,
         });
         return { success: false, error: error.message };
@@ -204,11 +211,10 @@ app.whenReady().then(async () => {
         if (originalState.volumeLevel === undefined) {
           originalState.volumeLevel = volumeLevel;
         }
-        systemState.audioMuted = true;
-        updateTray(mainWindow, systemState);
+        updateSystemState({ audioMuted: true });
         return { success: true };
       } catch (error: any) {
-        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+        logger.error('muteAudio failed', error instanceof Error ? error : new Error(error.message), {
           platform,
         });
         return { success: false, error: error.message };
@@ -218,13 +224,12 @@ app.whenReady().then(async () => {
       try {
         if (originalState.volumeLevel !== undefined) {
           await platformHandlers.unmuteAudio(platform, originalState.volumeLevel);
-          systemState.audioMuted = false;
           originalState.volumeLevel = undefined;
         }
-        updateTray(mainWindow, systemState);
+        updateSystemState({ audioMuted: false });
         return { success: true };
       } catch (error: any) {
-        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+        logger.error('unmuteAudio failed', error instanceof Error ? error : new Error(error.message), {
           platform,
         });
         return { success: false, error: error.message };
@@ -233,11 +238,10 @@ app.whenReady().then(async () => {
     disableNotifications: async () => {
       try {
         await platformHandlers.disableNotifications(platform);
-        systemState.notificationsDisabled = true;
-        updateTray(mainWindow, systemState);
+        updateSystemState({ notificationsDisabled: true });
         return { success: true };
       } catch (error: any) {
-        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+        logger.error('disableNotifications failed', error instanceof Error ? error : new Error(error.message), {
           platform,
         });
         return { success: false, error: error.message };
@@ -246,11 +250,10 @@ app.whenReady().then(async () => {
     enableNotifications: async () => {
       try {
         await platformHandlers.enableNotifications(platform);
-        systemState.notificationsDisabled = false;
-        updateTray(mainWindow, systemState);
+        updateSystemState({ notificationsDisabled: false });
         return { success: true };
       } catch (error: any) {
-        logger.error('hideDesktopIcons failed', error instanceof Error ? error : new Error(error.message), {
+        logger.error('enableNotifications failed', error instanceof Error ? error : new Error(error.message), {
           platform,
         });
         return { success: false, error: error.message };
@@ -321,8 +324,7 @@ ipcMain.handle(IPC_CHANNELS.GET_SYSTEM_STATE, () => {
 ipcMain.handle(IPC_CHANNELS.HIDE_DESKTOP_ICONS, async () => {
   try {
     await platformHandlers.hideDesktopIcons(platform);
-    systemState.desktopIconsHidden = true;
-    updateTray(mainWindow, systemState);
+    updateSystemState({ desktopIconsHidden: true });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -332,8 +334,7 @@ ipcMain.handle(IPC_CHANNELS.HIDE_DESKTOP_ICONS, async () => {
 ipcMain.handle(IPC_CHANNELS.SHOW_DESKTOP_ICONS, async () => {
   try {
     await platformHandlers.showDesktopIcons(platform);
-    systemState.desktopIconsHidden = false;
-    updateTray(mainWindow, systemState);
+    updateSystemState({ desktopIconsHidden: false });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -343,8 +344,7 @@ ipcMain.handle(IPC_CHANNELS.SHOW_DESKTOP_ICONS, async () => {
 ipcMain.handle(IPC_CHANNELS.MINIMIZE_ALL_WINDOWS, async () => {
   try {
     await platformHandlers.minimizeAllWindows(platform);
-    systemState.windowsMinimized = true;
-    updateTray(mainWindow, systemState);
+    updateSystemState({ windowsMinimized: true });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -354,8 +354,7 @@ ipcMain.handle(IPC_CHANNELS.MINIMIZE_ALL_WINDOWS, async () => {
 ipcMain.handle(IPC_CHANNELS.RESTORE_ALL_WINDOWS, async () => {
   try {
     await platformHandlers.restoreAllWindows(platform);
-    systemState.windowsMinimized = false;
-    updateTray(mainWindow, systemState);
+    updateSystemState({ windowsMinimized: false });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -377,8 +376,7 @@ ipcMain.handle(IPC_CHANNELS.CHANGE_WALLPAPER, async (_, path?: string) => {
     if (!originalState.wallpaperPath) {
       originalState.wallpaperPath = originalWallpaperPath;
     }
-    systemState.wallpaperChanged = true;
-    updateTray(mainWindow, systemState);
+    updateSystemState({ wallpaperChanged: true });
     return { success: true, wallpaperPath: originalWallpaperPath };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -389,10 +387,9 @@ ipcMain.handle(IPC_CHANNELS.RESTORE_WALLPAPER, async () => {
   try {
     if (originalState.wallpaperPath) {
       await platformHandlers.restoreWallpaper(platform, originalState.wallpaperPath);
-      systemState.wallpaperChanged = false;
       originalState.wallpaperPath = undefined;
     }
-    updateTray(mainWindow, systemState);
+    updateSystemState({ wallpaperChanged: false });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -405,8 +402,7 @@ ipcMain.handle(IPC_CHANNELS.MUTE_AUDIO, async () => {
     if (originalState.volumeLevel === undefined) {
       originalState.volumeLevel = volumeLevel;
     }
-    systemState.audioMuted = true;
-    updateTray(mainWindow, systemState);
+    updateSystemState({ audioMuted: true });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -417,10 +413,9 @@ ipcMain.handle(IPC_CHANNELS.UNMUTE_AUDIO, async () => {
   try {
     if (originalState.volumeLevel !== undefined) {
       await platformHandlers.unmuteAudio(platform, originalState.volumeLevel);
-      systemState.audioMuted = false;
       originalState.volumeLevel = undefined;
     }
-    updateTray(mainWindow, systemState);
+    updateSystemState({ audioMuted: false });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -430,8 +425,7 @@ ipcMain.handle(IPC_CHANNELS.UNMUTE_AUDIO, async () => {
 ipcMain.handle(IPC_CHANNELS.DISABLE_NOTIFICATIONS, async () => {
   try {
     await platformHandlers.disableNotifications(platform);
-    systemState.notificationsDisabled = true;
-    updateTray(mainWindow, systemState);
+    updateSystemState({ notificationsDisabled: true });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -441,8 +435,7 @@ ipcMain.handle(IPC_CHANNELS.DISABLE_NOTIFICATIONS, async () => {
 ipcMain.handle(IPC_CHANNELS.ENABLE_NOTIFICATIONS, async () => {
   try {
     await platformHandlers.enableNotifications(platform);
-    systemState.notificationsDisabled = false;
-    updateTray(mainWindow, systemState);
+    updateSystemState({ notificationsDisabled: false });
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

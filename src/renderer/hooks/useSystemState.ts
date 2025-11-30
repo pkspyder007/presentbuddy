@@ -26,6 +26,13 @@ export function useSystemState() {
       }
     }
     loadState();
+
+    // Listen for state updates from main process (e.g., from system tray)
+    const cleanup = window.electronAPI.onSystemStateUpdated((newState) => {
+      setSystemState(newState);
+    });
+
+    return cleanup;
   }, []);
 
   const toggleFeature = useCallback(

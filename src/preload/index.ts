@@ -39,6 +39,16 @@ const electronAPI = {
       ipcRenderer.removeListener(IPC_CHANNELS.TOGGLE_ALL, callback);
     };
   },
+
+  // State update listener
+  onSystemStateUpdated: (callback: (state: SystemState) => void) => {
+    const handler = (_: any, state: SystemState) => callback(state);
+    ipcRenderer.on(IPC_CHANNELS.SYSTEM_STATE_UPDATED, handler);
+    // Return cleanup function
+    return () => {
+      ipcRenderer.removeListener(IPC_CHANNELS.SYSTEM_STATE_UPDATED, handler);
+    };
+  },
 };
 
 contextBridge.exposeInMainWorld('electronAPI', electronAPI);

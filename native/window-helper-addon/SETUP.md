@@ -94,7 +94,7 @@ if (result.success) {
 
 ## Migration Notes
 
-The old Swift helper (`MacWindowHelper`) is still included in the build for backward compatibility but is no longer used. It can be removed in a future version.
+The old Swift helper (`MacWindowHelper`) has been completely removed. All functionality is now provided by this Node.js addon.
 
 ## Troubleshooting
 

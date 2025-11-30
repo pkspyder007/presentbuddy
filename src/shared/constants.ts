@@ -30,4 +30,7 @@ export const IPC_CHANNELS = {
 
   // Hotkey
   TOGGLE_ALL: 'hotkey:toggle-all',
+
+  // State updates
+  SYSTEM_STATE_UPDATED: 'state:system-state-updated',
 } as const;
